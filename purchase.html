@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能采购管理系统</title>
+  <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --success-color: #06d6a0;
+      --warning-color: #ffd166;
+      --danger-color: #ef476f;
+    }
+
+    body {
+      background: #f8f9fa;
+      font-family: 'Segoe UI', system-ui;
+    }
+
+    .main-container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .nav-pills {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-link {
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      color: #64748b;
+    }
+
+    .nav-link.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white !important;
+    }
+
+    .card-module {
+      background: white;
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .card-module:hover {
+      transform: translateY(-5px);
+    }
+
+    .form-control {
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+    }
+
+    .table-module {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+    }
+
+    .timeline {
+       position: relative;
+       padding-left: 30px;
+     }
+    .timeline-item {
+      position: relative;
+      padding-bottom: 20px;
+    }
+    .timeline-icon {
+      position: absolute;
+      left: -38px;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .timeline-content {
+      border-left: 2px solid #eee;
+      padding-left: 20px;
+      padding-bottom: 15px;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .star-rating {
+      font-size: 0.9em;
+    }
+
+    /* 状态筛选按钮激活样式 */
+    .btn[data-status].active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    /* 模态框动画 */
+    .modal {
+      animation: modalSlide 0.3s ease;
+    }
+
+    @keyframes modalSlide {
+      from { transform: translateY(20%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* 操作按钮过渡效果 */
+    .btn {
+      transition: all 0.2s ease;
+    }
+
+    .btn-success:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+    }
+
+  </style>
+</head>
+<body>
+<div class="main-container">
+  <div class="d-flex align-items-center mb-5">
+    <h1 class="me-4" style="color: var(--primary-color);">
+      <i class="fas fa-boxes me-2"></i>采购管理系统
+    </h1>
+  </div>
+
+  <!-- 导航菜单 -->
+  <ul class="nav nav-pills mb-4">
+    <li class="nav-item me-2">
+      <a class="nav-link active" data-bs-toggle="tab" href="#goods">
+        <i class="fas fa-cube me-2"></i>商品管理
+      </a>
+    </li>
+    <li class="nav-item me-2">
+      <a class="nav-link" data-bs-toggle="tab" href="#purchase">
+        <i class="fas fa-shopping-cart me-2"></i>采购管理
+      </a>
+    </li>
+    <li class="nav-item me-2">
+      <a class="nav-link" data-bs-toggle="tab" href="#inventory">
+        <i class="fas fa-warehouse me-2"></i>库存管理
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#supplier">
+        <i class="fas fa-handshake me-2"></i>供应商
+      </a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- 商品管理 -->
+    <div class="tab-pane fade show active" id="goods">
+      <div class="card-module p-4 mb-4">
+        <h4 class="mb-4"><i class="fas fa-plus-circle me-2"></i>新建商品</h4>
+        <form id="productForm" class="row g-4">
+            <div class="col-md-6">
+                <label class="form-label text-secondary">商品名称</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                    <input type="text" id="productName" class="form-control" placeholder="输入商品名称" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-secondary">商品分类</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
+                    <select id="productCategory" class="form-select" required>
+                        <option value="">选择分类</option>
+                        <option value="电子产品">电子产品</option>
+                        <option value="办公用品">办公用品</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <label class="form-label text-secondary">商品属性</label>
+                    <button type="button" class="btn btn-sm btn-gradient" onclick="addAttribute()">
+                        <i class="fas fa-plus me-2"></i>添加属性
+                    </button>
+                </div>
+                <div id="attributesContainer" class="row g-3">
+                    <div class="col-md-4">
+                        <div class="border p-3 rounded">
+                            <input type="text" class="form-control mb-2 attribute-name" placeholder="属性名称">
+                            <input type="text" class="form-control attribute-value" placeholder="属性值">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 text-end">
+                <button type="submit" class="btn btn-gradient px-5">
+                    <i class="fas fa-save me-2"></i>保存商品
+                </button>
+            </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 采购管理 -->
+    <div class="tab-pane fade" id="purchase">
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="card-module p-4">
+            <h4 class="mb-4"><i class="fas fa-file-invoice me-2"></i>采购订单</h4>
+            <div class="table-responsive">
+              <table class="table table-module table-hover align-middle">
+                <thead class="bg-light">
+                <tr>
+                  <th>订单编号</th>
+                  <th>供应商</th>
+                  <th>金额</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>#PO-2309-001</td>
+                  <td>供应商A</td>
+                  <td class="fw-bold">¥15,000</td>
+                  <td>
+                                                <span class="status-badge bg-warning text-dark">
+                                                    <i class="fas fa-clock me-2"></i>待审批
+                                                </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#PO-2309-002</td>
+                  <td>供应商B</td>
+                  <td class="fw-bold">¥8,500</td>
+                  <td>
+                                                <span class="status-badge bg-success text-white">
+                                                    <i class="fas fa-check-circle me-2"></i>已完成
+                                                </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-file-invoice"></i>
+                    </button>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card-module p-4">
+            <h4 class="mb-4"><i class="fas fa-chart-line me-2"></i>采购统计</h4>
+            <div class="d-flex justify-content-between mb-3">
+              <div class="text-center">
+                <div class="text-secondary small">本月采购</div>
+                <div class="h4 text-primary">¥23,500</div>
+              </div>
+              <div class="text-center">
+                <div class="text-secondary small">供应商数量</div>
+                <div class="h4 text-success">15</div>
+              </div>
+            </div>
+            <canvas id="purchaseChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 接续之前的代码，在tab-content内继续添加以下内容 -->
+
+    <!-- 库存管理 -->
+    <div class="tab-pane fade" id="inventory">
+      <div class="row g-4">
+        <!-- 库存查询 -->
+        <div class="col-lg-8">
+          <div class="card-module p-4">
+            <h4 class="mb-4"><i class="fas fa-search me-2"></i>库存查询</h4>
+            <div class="input-group mb-4">
+              <input type="text" class="form-control" placeholder="输入商品名称/编码">
+              <button class="btn btn-gradient">
+                <i class="fas fa-search me-2"></i>搜索
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-module table-hover">
+                <thead class="bg-light">
+                <tr>
+                  <th>商品名称</th>
+                  <th>仓库</th>
+                  <th>当前库存</th>
+                  <th>安全库存</th>
+                  <th>状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>笔记本电脑 X1</td>
+                  <td>上海主仓</td>
+                  <td class="fw-bold">150</td>
+                  <td>200</td>
+                  <td>
+                                    <span class="status-badge bg-danger text-white">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>库存不足
+                                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>无线鼠标 M2</td>
+                  <td>北京分仓</td>
+                  <td class="fw-bold">850</td>
+                  <td>500</td>
+                  <td>
+                                    <span class="status-badge bg-success text-white">
+                                        <i class="fas fa-check-circle me-2"></i>正常
+                                    </span>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 库存操作 -->
+        <div class="col-lg-4">
+          <div class="card-module p-4 mb-4">
+            <h4 class="mb-4"><i class="fas fa-exchange-alt me-2"></i>库存调拨</h4>
+            <form>
+              <div class="mb-3">
+                <label class="form-label text-secondary">选择商品</label>
+                <select class="form-select">
+                  <option>笔记本电脑 X1</option>
+                  <option>无线鼠标 M2</option>
+                </select>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-6">
+                  <label class="form-label text-secondary">来源仓库</label>
+                  <select class="form-select">
+                    <option>上海主仓</option>
+                    <option>北京分仓</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label text-secondary">目标仓库</label>
+                  <select class="form-select">
+                    <option>北京分仓</option>
+                    <option>上海主仓</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="form-label text-secondary">调拨数量</label>
+                <input type="number" class="form-control" min="1" value="10">
+              </div>
+              <button class="btn btn-gradient w-100">
+                <i class="fas fa-truck-moving me-2"></i>提交调拨
+              </button>
+            </form>
+          </div>
+
+          <div class="card-module p-4">
+            <h4 class="mb-4"><i class="fas fa-clipboard-list me-2"></i>近期盘点</h4>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-icon bg-success">
+                  <i class="fas fa-check"></i>
+                </div>
+                <div class="timeline-content">
+                  <span class="small text-secondary">2023-09-05</span>
+                  <p class="mb-0">上海主仓月度盘点完成</p>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-icon bg-warning">
+                  <i class="fas fa-exclamation"></i>
+                </div>
+                <div class="timeline-content">
+                  <span class="small text-secondary">2023-09-03</span>
+                  <p class="mb-0">北京分仓发现差异：-5件</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 供应商管理 -->
+    <div class="tab-pane fade" id="supplier">
+      <div class="row g-4">
+        <!-- 供应商列表 -->
+        <div class="col-lg-8">
+          <div class="card-module p-4">
+            <h4 class="mb-4"><i class="fas fa-handshake me-2"></i>供应商列表</h4>
+            <div class="table-responsive">
+              <table class="table table-module table-hover">
+                <thead class="bg-light">
+                <tr>
+                  <th>供应商名称</th>
+                  <th>合作状态</th>
+                  <th>信用评级</th>
+                  <th>最近交易</th>
+                  <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar bg-primary text-white me-3">A</div>
+                      <div>
+                        <div class="fw-bold">科技先锋有限公司</div>
+                        <div class="small text-secondary">王经理 138-1234-5678</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                                    <span class="status-badge bg-success text-white">
+                                        <i class="fas fa-check-circle me-2"></i>合作中
+                                    </span>
+                  </td>
+                  <td>
+                    <div class="star-rating text-warning">
+                      <i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i>
+                      <i class="fas fa-star"></i>
+                      <i class="fas fa-star-half-alt"></i>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="small">2023-09-01</div>
+                    <div class="small text-success">¥15,000</div>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary me-2">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 供应商详情 -->
+        <div class="col-lg-4">
+          <div class="card-module p-4">
+            <h4 class="mb-4"><i class="fas fa-info-circle me-2"></i>供应商详情</h4>
+            <form>
+              <div class="mb-3">
+                <label class="form-label text-secondary">供应商名称</label>
+                <input type="text" class="form-control" value="科技先锋有限公司">
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-6">
+                  <label class="form-label text-secondary">信用等级</label>
+                  <select class="form-select">
+                    <option>AAA</option>
+                    <option>AA</option>
+                    <option>A</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label text-secondary">合作状态</label>
+                  <select class="form-select">
+                    <option>合作中</option>
+                    <option>已暂停</option>
+                    <option>终止合作</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="form-label text-secondary">最近评价</label>
+                <textarea class="form-control" rows="3">交货准时，质量稳定</textarea>
+              </div>
+              <button class="btn btn-gradient w-100">
+                <i class="fas fa-save me-2"></i>更新信息
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 在采购管理模块的采购订单列表部分更新为以下代码 -->
+        <div class="card-module p-4">
+          <h4 class="mb-4"><i class="fas fa-file-invoice me-2"></i>采购订单管理</h4>
+
+          <!-- 订单状态筛选 -->
+          <div class="d-flex mb-4">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-outline-secondary active" data-status="all">
+                全部订单
+              </button>
+              <button type="button" class="btn btn-outline-secondary" data-status="pending">
+                待审批
+              </button>
+              <button type="button" class="btn btn-outline-secondary" data-status="approved">
+                已通过
+              </button>
+              <button type="button" class="btn btn-outline-secondary" data-status="rejected">
+                已拒绝
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-module table-hover align-middle">
+              <thead class="bg-light">
+              <tr>
+                <th>订单编号</th>
+                <th>供应商</th>
+                <th>金额</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+              </thead>
+              <tbody>
+              <!-- 待审批订单 -->
+              <tr data-status="pending">
+                <td>#PO-2309-001</td>
+                <td>供应商A</td>
+                <td class="fw-bold">¥15,000</td>
+                <td>
+                        <span class="status-badge bg-warning text-dark">
+                            <i class="fas fa-clock me-2"></i>待审批
+                        </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-success me-2"
+                          data-bs-toggle="modal"
+                          data-bs-target="#approveModal">
+                    <i class="fas fa-check"></i> 审批
+                  </button>
+                  <button class="btn btn-sm btn-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#rejectModal">
+                    <i class="fas fa-times"></i> 拒绝
+                  </button>
+                </td>
+              </tr>
+
+              <!-- 已审批订单 -->
+              <tr data-status="approved">
+                <td>#PO-2309-002</td>
+                <td>供应商B</td>
+                <td class="fw-bold">¥8,500</td>
+                <td>
+                        <span class="status-badge bg-success text-white">
+                            <i class="fas fa-check-circle me-2"></i>已通过
+                        </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#detailModal">
+                    <i class="fas fa-file-invoice"></i> 详情
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 审批操作模态框 -->
+        <div class="modal fade" id="approveModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>确认审批</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <p>确定要通过该采购订单吗？</p>
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" placeholder="审批备注"
+                              style="height: 100px"></textarea>
+                  <label>审批备注</label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success" onclick="approveOrder()">
+                  确认通过
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 订单详情模态框 -->
+        <div class="modal fade" id="detailModal">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">采购订单详情 #PO-2309-002</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-info-circle me-2"></i>基本信息</h6>
+                    <ul class="list-unstyled">
+                      <li>供应商：供应商B</li>
+                      <li>总金额：¥8,500</li>
+                      <li>创建时间：2023-09-02 14:30</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-list me-2"></i>商品清单</h6>
+                    <ul class="list-group">
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span>无线鼠标 M2</span>
+                        <span>100件 × ¥85</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <hr>
+                <h6><i class="fas fa-history me-2"></i>审批记录</h6>
+                <div class="timeline">
+                  <div class="timeline-item">
+                    <div class="timeline-icon bg-success">
+                      <i class="fas fa-check"></i>
+                    </div>
+                    <div class="timeline-content">
+                      <span class="small text-secondary">2023-09-02 15:00</span>
+                      <p class="mb-0">李经理：同意采购申请</p>
+                      <p class="text-muted small">备注：符合季度采购计划</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 表单提交处理
+document.getElementById('productForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // 收集表单数据
+    const product = {
+        name: document.getElementById('productName').value,
+        category: document.getElementById('productCategory').value,
+        attributes: {}
+    };
+    
+    // 收集属性数据
+    const attributeNames = document.querySelectorAll('.attribute-name');
+    const attributeValues = document.querySelectorAll('.attribute-value');
+    
+    attributeNames.forEach((nameInput, index) => {
+        const name = nameInput.value.trim();
+        const value = attributeValues[index].value.trim();
+        if (name && value) {
+            product.attributes[name] = value;
+        }
+    });
+    
+    try {
+        // 发送到后端
+        const response = await fetch('/api/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(product)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert('商品保存成功！');
+            // 重置表单
+            this.reset();
+            document.getElementById('attributesContainer').innerHTML = `
+                <div class="col-md-4">
+                    <div class="border p-3 rounded">
+                        <input type="text" class="form-control mb-2 attribute-name" placeholder="属性名称">
+                        <input type="text" class="form-control attribute-value" placeholder="属性值">
+                    </div>
+                </div>
+            `;
+        } else {
+            alert(`保存失败: ${result.error || '未知错误'}`);
+        }
+    } catch (error) {
+        console.error('保存商品出错:', error);
+        alert('保存商品时发生错误，请检查控制台');
+    }
+});
+
+// 修改addAttribute函数以使用新的类名
+function addAttribute() {
+    const container = document.getElementById('attributesContainer');
+    const newField = document.createElement('div');
+    newField.className = 'col-md-4';
+    newField.innerHTML = `
+        <div class="border p-3 rounded">
+            <input type="text" class="form-control mb-2 attribute-name" placeholder="属性名称">
+            <input type="text" class="form-control attribute-value" placeholder="属性值">
+            <button class="btn btn-link text-danger btn-sm mt-2 p-0"
+                    onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i> 删除
+            </button>
+        </div>
+    `;
+    container.appendChild(newField);
+}
+
+  // 示例图表
+  const ctx = document.getElementById('purchaseChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['电子产品', '办公用品', '其他'],
+      datasets: [{
+        data: [65, 25, 10],
+        backgroundColor: [
+          'rgba(67, 97, 238, 0.8)',
+          'rgba(63, 55, 201, 0.8)',
+          'rgba(239, 71, 111, 0.8)'
+        ]
+      }]
+    }
+  });
+
+  // 审批操作函数
+  function approveOrder() {
+    $('#approveModal').modal('hide');
+    // 实际开发中此处应调用API
+    const $row = $('tr[data-status="pending"]:first');
+    $row.find('.status-badge')
+      .removeClass('bg-warning text-dark')
+      .addClass('bg-success text-white')
+      .html('<i class="fas fa-check-circle me-2"></i>已通过');
+    $row.find('td:last').html(`
+        <button class="btn btn-sm btn-outline-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#detailModal">
+            <i class="fas fa-file-invoice"></i> 详情
+        </button>
+    `);
+    $row.attr('data-status', 'approved');
+  }
+
+  // 订单筛选功能
+  $('[data-status]').click(function() {
+    const status = $(this).data('status');
+    $('.btn[data-status]').removeClass('active');
+    $(this).addClass('active');
+
+    if(status === 'all') {
+      $('tbody tr').show();
+    } else {
+      $('tbody tr').hide();
+      $(`tbody tr[data-status="${status}"]`).show();
+    }
+  });
+
+</script>
+</body>
+</html>
