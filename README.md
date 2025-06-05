@@ -7,3 +7,4 @@ npm init -y
 npm install koa koa-router koa-bodyparser koa-cors mysql2 dotenv
 npm install --save-dev nodemon
 # 6/5 张经纬 更新server.js purchase.html，添加商品信息录入功能
+# 6/5 朱宇帆 更新index.html
