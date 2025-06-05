@@ -497,6 +497,6 @@ app.on('error', (err, ctx) => {
 
 // 启动服务器
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on http:
+app.listen(PORT, HOST, () => {
+    console.log(`Purchase management system running at http://${HOST}:${PORT}`);
 });
