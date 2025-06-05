@@ -486,36 +486,39 @@
         <div class="col-lg-4">
           <div class="card-module p-4">
             <h4 class="mb-4"><i class="fas fa-info-circle me-2"></i>供应商详情</h4>
-            <form>
-              <div class="mb-3">
-                <label class="form-label text-secondary">供应商名称</label>
-                <input type="text" class="form-control" value="科技先锋有限公司">
-              </div>
-              <div class="row g-3 mb-3">
-                <div class="col-6">
-                  <label class="form-label text-secondary">信用等级</label>
-                  <select class="form-select">
-                    <option>AAA</option>
-                    <option>AA</option>
-                    <option>A</option>
-                  </select>
+            <form id="supplierForm">
+                <div class="mb-3">
+                    <label class="form-label text-secondary">供应商名称</label>
+                    <input type="text" id="supplierName" class="form-control" required>
                 </div>
-                <div class="col-6">
-                  <label class="form-label text-secondary">合作状态</label>
-                  <select class="form-select">
-                    <option>合作中</option>
-                    <option>已暂停</option>
-                    <option>终止合作</option>
-                  </select>
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label text-secondary">信用等级</label>
+                        <select id="supplierCreditRating" class="form-select">
+                            <option value="AAA">AAA</option>
+                            <option value="AA">AA</option>
+                            <option value="A" selected>A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-secondary">合作状态</label>
+                        <select id="supplierStatus" class="form-select">
+                            <option value="合作中">合作中</option>
+                            <option value="已暂停">已暂停</option>
+                            <option value="终止合作">终止合作</option>
+                        </select>
+                     </div>
                 </div>
-              </div>
-              <div class="mb-4">
-                <label class="form-label text-secondary">最近评价</label>
-                <textarea class="form-control" rows="3">交货准时，质量稳定</textarea>
-              </div>
-              <button class="btn btn-gradient w-100">
-                <i class="fas fa-save me-2"></i>更新信息
-              </button>
+                <div class="mb-4">
+                    <label class="form-label text-secondary">最近评价</label>
+                    <textarea id="supplierEvaluation" class="form-control" rows="3"></textarea>
+                </div>
+                <input type="hidden" id="supplierId">
+                <button type="submit" class="btn btn-gradient w-100">
+                    <i class="fas fa-save me-2"></i>更新信息
+                </button>
             </form>
           </div>
         </div>
@@ -756,6 +759,73 @@ function addAttribute() {
     `;
     container.appendChild(newField);
 }
+
+// 供应商表单提交处理
+document.getElementById('supplierForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const supplierData = {
+        id: document.getElementById('supplierId').value || null,
+        name: document.getElementById('supplierName').value,
+        credit_rating: document.getElementById('supplierCreditRating').value,
+        cooperation_status: document.getElementById('supplierStatus').value,
+        latest_evaluation: document.getElementById('supplierEvaluation').value
+    };
+    
+    try {
+        // 发送到后端
+        const response = await fetch('/api/suppliers', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(supplierData)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert('供应商信息更新成功！');
+            loadSuppliers(); // 重新加载供应商列表
+        } else {
+            alert(`更新失败: ${result.error || '未知错误'}`);
+        }
+    } catch (error) {
+        console.error('更新供应商出错:', error);
+        alert('更新供应商信息时发生错误，请检查控制台');
+    }
+});
+
+// 加载供应商列表
+async function loadSuppliers() {
+    try {
+        const response = await fetch('/api/suppliers');
+        const suppliers = await response.json();
+        
+        // 这里可以添加代码来更新供应商列表的显示
+        console.log('供应商列表:', suppliers);
+        
+        // 如果有供应商数据，可以预填充第一个供应商到表单
+        if (suppliers.length > 0) {
+            const firstSupplier = suppliers[0];
+            document.getElementById('supplierId').value = firstSupplier.id;
+            document.getElementById('supplierName').value = firstSupplier.name;
+            document.getElementById('supplierCreditRating').value = firstSupplier.credit_rating;
+            document.getElementById('supplierStatus').value = firstSupplier.cooperation_status;
+            document.getElementById('supplierEvaluation').value = firstSupplier.latest_evaluation || '';
+        }
+    } catch (error) {
+        console.error('加载供应商列表出错:', error);
+    }
+}
+
+// 页面加载时获取供应商数据
+document.addEventListener('DOMContentLoaded', function() {
+    // 只有当在供应商页面时才加载
+    if (window.location.hash === '#supplier') {
+        loadSuppliers();
+    }
+});
 
   // 示例图表
   const ctx = document.getElementById('purchaseChart').getContext('2d');
