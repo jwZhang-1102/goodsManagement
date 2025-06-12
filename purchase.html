@@ -186,6 +186,13 @@
         <h4 class="mb-4"><i class="fas fa-plus-circle me-2"></i>新建商品</h4>
         <form id="productForm" class="row g-4">
             <div class="col-md-6">
+                <label class="form-label text-secondary">商品码</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+                    <input type="text" id="productCode" class="form-control" placeholder="输入商品码" required>
+                </div>
+            </div>
+            <div class="col-md-6">
                 <label class="form-label text-secondary">商品名称</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-tag"></i></span>
@@ -200,6 +207,8 @@
                         <option value="">选择分类</option>
                         <option value="电子产品">电子产品</option>
                         <option value="办公用品">办公用品</option>
+                        <option value="办公用品">家居用品</option>
+                        <option value="办公用品">运动户外</option>
                     </select>
                 </div>
             </div>
@@ -211,17 +220,12 @@
                     </button>
                 </div>
                 <div id="attributesContainer" class="row g-3">
-                    <div class="col-md-4">
-                        <div class="border p-3 rounded">
-                            <input type="text" class="form-control mb-2 attribute-name" placeholder="属性名称">
-                            <input type="text" class="form-control attribute-value" placeholder="属性值">
-                        </div>
-                    </div>
+
                 </div>
             </div>
             <div class="col-12 text-end">
                 <button type="submit" class="btn btn-gradient px-5">
-                    <i class="fas fa-save me-2"></i>保存商品
+                    <i class="fas fa-save me-2"></i>更新
                 </button>
             </div>
         </form>
@@ -231,178 +235,182 @@
     <!-- 采购管理 -->
     <div class="tab-pane fade" id="purchase">
       <div class="row g-4">
-        <div class="col-lg-8">
+        <div class="col-lg-12">
+          <!-- 在采购管理标签页中，放在订单管理表格之前 -->
+<div class="card-module p-4 mb-4">
+  <h4 class="mb-4"><i class="fas fa-plus-circle me-2"></i>创建新订单</h4>
+  <form id="createOrderForm" class="row g-4">
+    <div class="col-md-6">
+      <label class="form-label text-secondary">订单编号</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+        <input type="text" id="orderCode" class="form-control" placeholder="输入订单编号" required>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label text-secondary">供应商</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-handshake"></i></span>
+        <select id="supplierSelect" class="form-select" required>
+          <option value="">选择供应商</option>
+          <!-- 供应商选项将通过JavaScript动态填充 -->
+        </select>
+      </div>
+    </div>
+    <div class="col-md-6">
+    <label class="form-label text-secondary">创建人</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-user"></i></span>
+        <input type="text" id="createdBy" class="form-control" placeholder="输入创建人姓名" required>
+    </div>
+</div>
+    
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <label class="form-label text-secondary">商品清单</label>
+        <button type="button" class="btn btn-sm btn-gradient" onclick="addOrderItem()">
+          <i class="fas fa-plus me-2"></i>添加商品
+        </button>
+      </div>
+      <div id="orderItemsContainer" class="row g-3">
+        <!-- 商品行将通过JavaScript动态添加 -->
+      </div>
+    </div>
+    
+    <div class="col-12 text-end">
+      <button type="submit" class="btn btn-gradient px-5">
+        <i class="fas fa-paper-plane me-2"></i>提交订单
+      </button>
+    </div>
+  </form>
+</div>
+
           <div class="card-module p-4">
-            <h4 class="mb-4"><i class="fas fa-file-invoice me-2"></i>采购订单</h4>
+            <h4 class="mb-4"><i class="fas fa-file-invoice me-2"></i>采购订单管理</h4>
+            <div class="d-flex justify-content-between mb-4">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-secondary active" data-status="all" onclick="filterPurchaseOrders('all')">
+                  全部订单
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-status="pending" onclick="filterPurchaseOrders('pending')">
+                  待审批
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-status="approved" onclick="filterPurchaseOrders('approved')">
+                  已通过
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-status="rejected" onclick="filterPurchaseOrders('rejected')">
+                  已拒绝
+                </button>
+              </div>
+            </div>
+
+            
             <div class="table-responsive">
-              <table class="table table-module table-hover align-middle">
+              <table id="purchaseManagementTable" class="table table-module table-hover align-middle">
                 <thead class="bg-light">
-                <tr>
-                  <th>订单编号</th>
-                  <th>供应商</th>
-                  <th>金额</th>
-                  <th>状态</th>
-                  <th>操作</th>
-                </tr>
+                  <tr>
+                    <th>订单编号</th>
+                    <th>供应商</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                  </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td>#PO-2309-001</td>
-                  <td>供应商A</td>
-                  <td class="fw-bold">¥15,000</td>
-                  <td>
-                                                <span class="status-badge bg-warning text-dark">
-                                                    <i class="fas fa-clock me-2"></i>待审批
-                                                </span>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>#PO-2309-002</td>
-                  <td>供应商B</td>
-                  <td class="fw-bold">¥8,500</td>
-                  <td>
-                                                <span class="status-badge bg-success text-white">
-                                                    <i class="fas fa-check-circle me-2"></i>已完成
-                                                </span>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary">
-                      <i class="fas fa-file-invoice"></i>
-                    </button>
-                  </td>
-                </tr>
+                  <!-- 数据将通过JavaScript动态填充 -->
                 </tbody>
               </table>
             </div>
           </div>
         </div>
-
-        <div class="col-lg-4">
-          <div class="card-module p-4">
-            <h4 class="mb-4"><i class="fas fa-chart-line me-2"></i>采购统计</h4>
-            <div class="d-flex justify-content-between mb-3">
-              <div class="text-center">
-                <div class="text-secondary small">本月采购</div>
-                <div class="h4 text-primary">¥23,500</div>
-              </div>
-              <div class="text-center">
-                <div class="text-secondary small">供应商数量</div>
-                <div class="h4 text-success">15</div>
-              </div>
-            </div>
-            <canvas id="purchaseChart"></canvas>
-          </div>
-        </div>
       </div>
     </div>
-
-    <!-- 接续之前的代码，在tab-content内继续添加以下内容 -->
-
     <!-- 库存管理 -->
-      <div class="col-lg-8">
+    <div class="tab-pane fade" id="inventory">
+      <div class="row g-4">
+        <!-- 库存查询 -->
+        <div class="col-lg-8">
           <div class="card-module p-4">
-              <h4 class="mb-4"><i class="fas fa-search me-2"></i>库存查询</h4>
-              <div class="input-group mb-4">
-                  <input type="text" id="inventorySearchInput" class="form-control" placeholder="输入商品名称/编码"> <button id="inventorySearchButton" class="btn btn-gradient"> <i class="fas fa-search me-2"></i>搜索
-              </button>
-              </div>
-              <div class="table-responsive">
-                  <table class="table table-module table-hover">
-                      <thead class="bg-light">
-                      <tr>
-                          <th>商品名称</th>
-                          <th>仓库</th>
-                          <th>当前库存</th>
-                          <th>安全库存</th>
-                          <th>状态</th>
-                      </tr>
-                      </thead>
-                      <tbody id="inventoryTableBody"> <tr>
-                          <td>笔记本电脑 X1</td>
-                          <td>上海主仓</td>
-                          <td class="fw-bold">150</td>
-                          <td>200</td>
-                          <td>
-                                <span class="status-badge bg-danger text-white">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>库存不足
-                                </span>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td>无线鼠标 M2</td>
-                          <td>北京分仓</td>
-                          <td class="fw-bold">850</td>
-                          <td>500</td>
-                          <td>
-                                <span class="status-badge bg-success text-white">
-                                    <i class="fas fa-check-circle me-2"></i>正常
-                                </span>
-                          </td>
-                      </tr>
-                      </tbody>
-                  </table>
-              </div>
+            <h4 class="mb-4"><i class="fas fa-search me-2"></i>库存查询</h4>
+            <div class="input-group mb-4">
+    <input type="text" id="inventorySearch" class="form-control" placeholder="输入商品名称/编码/仓库">
+    <button class="btn btn-gradient" onclick="searchInventory()">
+        <i class="fas fa-search me-2"></i>搜索
+    </button>
+</div>
+            <div class="table-responsive">
+    <table id="inventoryTable" class="table table-module table-hover">
+        <thead class="bg-light">
+            <tr>
+                <th>商品名称</th>
+                <th>商品编码</th>
+                <th>仓库</th>
+                <th>当前库存</th>
+                <th>安全库存</th>
+                <th>库存状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 数据将通过JavaScript动态填充 -->
+        </tbody>
+    </table>
+</div>
           </div>
-      </div>
+        </div>
 
-      <div class="col-lg-4">
+        
+        <!-- 库存操作 -->
+        <div class="col-lg-4">
           <div class="card-module p-4 mb-4">
-              <h4 class="mb-4"><i class="fas fa-exchange-alt me-2"></i>库存调拨</h4>
-              <form id="transferForm"> <div class="mb-3">
-                  <label for="transferGoodsSelect" class="form-label text-secondary">选择商品</label> <select id="transferGoodsSelect" class="form-select"> </select>
-              </div>
-                  <div class="row g-3 mb-3">
-                      <div class="col-6">
-                          <label for="fromWarehouse" class="form-label text-secondary">来源仓库</label>
-                          <select id="fromWarehouse" class="form-select">
-                              <option>上海主仓</option>
-                              <option>北京分仓</option>
-                              <option>深圳分仓</option> </select>
-                      </div>
-                      <div class="col-6">
-                          <label for="toWarehouse" class="form-label text-secondary">目标仓库</label>
-                          <select id="toWarehouse" class="form-select">
-                              <option>北京分仓</option>
-                              <option>上海主仓</option>
-                              <option>深圳分仓</option> </select>
-                      </div>
-                  </div>
-                  <div class="mb-4">
-                      <label for="transferQuantity" class="form-label text-secondary">调拨数量</label> <input type="number" id="transferQuantity" class="form-control" min="1" value="10"> </div>
-                  <button type="submit" class="btn btn-gradient w-100">
-                      <i class="fas fa-truck-moving me-2"></i>提交调拨
-                  </button>
-              </form>
-          </div>
+    <h4 class="mb-4"><i class="fas fa-exchange-alt me-2"></i>库存调拨</h4>
+    <form id="transferForm">
+        <div class="mb-3">
+            <label class="form-label text-secondary">商品编码</label>
+            <div class="input-group">
+                <input type="text" id="transferProductCode" class="form-control" placeholder="输入商品编码" required>
+                <button class="btn btn-outline-secondary" type="button" onclick="fillProductName()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-secondary">商品名称</label>
+            <input type="text" id="transferProductName" class="form-control" readonly>
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-6">
+                <label class="form-label text-secondary">来源仓库</label>
+                <select id="fromWarehouse" class="form-select" required>
+                    <option value="">选择来源仓库</option>
+                    <option value="SH001">上海主仓</option>
+                    <option value="BJ001">北京分仓</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <label class="form-label text-secondary">目标仓库</label>
+                <select id="toWarehouse" class="form-select" required>
+                    <option value="">选择目标仓库</option>
+                    <option value="SH001">上海主仓</option>
+                    <option value="BJ001">北京分仓</option>
+                </select>
+            </div>
+        </div>
+        <div class="mb-4">
+            <label class="form-label text-secondary">调拨数量</label>
+            <input type="number" id="transferQuantity" class="form-control" min="1" value="1" required>
+        </div>
+        <button type="submit" class="btn btn-gradient w-100">
+            <i class="fas fa-truck-moving me-2"></i>提交调拨
+        </button>
+    </form>
+</div>
 
           <div class="card-module p-4">
-              <h4 class="mb-4"><i class="fas fa-clipboard-list me-2"></i>近期盘点</h4>
-              <div class="timeline">
-                  <div class="timeline-item">
-                      <div class="timeline-icon bg-success">
-                          <i class="fas fa-check"></i>
-                      </div>
-                      <div class="timeline-content">
-                          <span class="small text-secondary">2023-09-05</span>
-                          <p class="mb-0">上海主仓月度盘点完成</p>
-                      </div>
-                  </div>
-                  <div class="timeline-item">
-                      <div class="timeline-icon bg-warning">
-                          <i class="fas fa-exclamation"></i>
-                      </div>
-                      <div class="timeline-content">
-                          <span class="small text-secondary">2023-09-03</span>
-                          <p class="mb-0">北京分仓发现差异：-5件</p>
-                      </div>
-                  </div>
-              </div>
-          </div>
+    <h4 class="mb-4"><i class="fas fa-clipboard-list me-2"></i>近期调拨记录</h4>
+    <div class="timeline" id="transferHistory">
+        <!-- 调拨记录将通过JavaScript动态填充 -->
+    </div>
+</div>
         </div>
       </div>
     </div>
@@ -415,7 +423,7 @@
           <div class="card-module p-4">
             <h4 class="mb-4"><i class="fas fa-handshake me-2"></i>供应商列表</h4>
             <div class="table-responsive">
-              <table class="table table-module table-hover">
+              <table id="suppliersTable" class="table table-module table-hover">
                 <thead class="bg-light">
                 <tr>
                   <th>供应商名称</th>
@@ -426,42 +434,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="avatar bg-primary text-white me-3">A</div>
-                      <div>
-                        <div class="fw-bold">科技先锋有限公司</div>
-                        <div class="small text-secondary">王经理 138-1234-5678</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                                    <span class="status-badge bg-success text-white">
-                                        <i class="fas fa-check-circle me-2"></i>合作中
-                                    </span>
-                  </td>
-                  <td>
-                    <div class="star-rating text-warning">
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star-half-alt"></i>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="small">2023-09-01</div>
-                    <div class="small text-success">¥15,000</div>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary me-2">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger">
-                      <i class="fas fa-ban"></i>
-                    </button>
-                  </td>
-                </tr>
+                <!-- 数据将通过JavaScript动态填充 -->
                 </tbody>
               </table>
             </div>
@@ -508,90 +481,48 @@
             </form>
           </div>
         </div>
-
-        <!-- 在采购管理模块的采购订单列表部分更新为以下代码 -->
         <div class="card-module p-4">
-          <h4 class="mb-4"><i class="fas fa-file-invoice me-2"></i>采购订单管理</h4>
+          <h4 class="mb-4"><i class="fas fa-file-invoice me-2"></i>采购订单信息</h4>
 
           <!-- 订单状态筛选 -->
           <div class="d-flex mb-4">
             <div class="btn-group" role="group">
-              <button type="button" class="btn btn-outline-secondary active" data-status="all">
+              <button type="button" class="btn btn-outline-secondary active" data-status="all" onclick="filterOrders('all')">
                 全部订单
               </button>
-              <button type="button" class="btn btn-outline-secondary" data-status="pending">
+              <button type="button" class="btn btn-outline-secondary" data-status="pending" onclick="filterOrders('pending')">
                 待审批
               </button>
-              <button type="button" class="btn btn-outline-secondary" data-status="approved">
+              <button type="button" class="btn btn-outline-secondary" data-status="approved" onclick="filterOrders('approved')">
                 已通过
               </button>
-              <button type="button" class="btn btn-outline-secondary" data-status="rejected">
+              <button type="button" class="btn btn-outline-secondary" data-status="rejected" onclick="filterOrders('rejected')">
                 已拒绝
               </button>
             </div>
           </div>
 
           <div class="table-responsive">
-            <table class="table table-module table-hover align-middle">
+            <table id="purchaseOrdersTable" class="table table-module table-hover align-middle">
               <thead class="bg-light">
-              <tr>
-                <th>订单编号</th>
-                <th>供应商</th>
-                <th>金额</th>
-                <th>状态</th>
-                <th>操作</th>
-              </tr>
+                <tr>
+                  <th>订单编号</th>
+                  <th>供应商</th>
+                  <th>金额</th>
+                  <th>状态</th>
+                  <th>创建时间</th>
+                  <th>操作</th>
+                </tr>
               </thead>
               <tbody>
-              <!-- 待审批订单 -->
-              <tr data-status="pending">
-                <td>#PO-2309-001</td>
-                <td>供应商A</td>
-                <td class="fw-bold">¥15,000</td>
-                <td>
-                        <span class="status-badge bg-warning text-dark">
-                            <i class="fas fa-clock me-2"></i>待审批
-                        </span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-success me-2"
-                          data-bs-toggle="modal"
-                          data-bs-target="#approveModal">
-                    <i class="fas fa-check"></i> 审批
-                  </button>
-                  <button class="btn btn-sm btn-danger"
-                          data-bs-toggle="modal"
-                          data-bs-target="#rejectModal">
-                    <i class="fas fa-times"></i> 拒绝
-                  </button>
-                </td>
-              </tr>
-
-              <!-- 已审批订单 -->
-              <tr data-status="approved">
-                <td>#PO-2309-002</td>
-                <td>供应商B</td>
-                <td class="fw-bold">¥8,500</td>
-                <td>
-                        <span class="status-badge bg-success text-white">
-                            <i class="fas fa-check-circle me-2"></i>已通过
-                        </span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-outline-primary"
-                          data-bs-toggle="modal"
-                          data-bs-target="#detailModal">
-                    <i class="fas fa-file-invoice"></i> 详情
-                  </button>
-                </td>
-              </tr>
+                <!-- 数据将通过JavaScript动态填充 -->
               </tbody>
             </table>
           </div>
         </div>
 
         <!-- 审批操作模态框 -->
-        <div class="modal fade" id="approveModal">
+        <div class="modal fade" id="approveModal" tabindex="-1">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -601,8 +532,7 @@
               <div class="modal-body">
                 <p>确定要通过该采购订单吗？</p>
                 <div class="form-floating mb-3">
-                    <textarea class="form-control" placeholder="审批备注"
-                              style="height: 100px"></textarea>
+                  <textarea id="approvalNotes" class="form-control" placeholder="审批备注" style="height: 100px"></textarea>
                   <label>审批备注</label>
                 </div>
               </div>
@@ -616,53 +546,63 @@
           </div>
         </div>
 
+        <!-- 拒绝操作模态框 -->
+        <div class="modal fade" id="rejectModal" tabindex="-1">
+          <div class="modal-dialog">
+           <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-times-circle me-2"></i>确认拒绝</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <p>确定要拒绝该采购订单吗？</p>
+                <div class="form-floating mb-3">
+                  <textarea id="rejectionReason" class="form-control" placeholder="拒绝原因" style="height: 100px" required></textarea>
+                  <label>拒绝原因</label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="rejectOrder()">
+                  确认拒绝
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 订单详情模态框 -->
-        <div class="modal fade" id="detailModal">
+        <div class="modal fade" id="orderDetailModal" tabindex="-1">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">采购订单详情 #PO-2309-002</h5>
+                <h5 class="modal-title" id="orderDetailTitle"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
               <div class="modal-body">
                 <div class="row">
                   <div class="col-md-6">
                     <h6><i class="fas fa-info-circle me-2"></i>基本信息</h6>
-                    <ul class="list-unstyled">
-                      <li>供应商：供应商B</li>
-                      <li>总金额：¥8,500</li>
-                      <li>创建时间：2023-09-02 14:30</li>
+                    <ul class="list-unstyled" id="orderBasicInfo">
+                      <!-- 基本信息将通过JavaScript填充 -->
                     </ul>
                   </div>
                   <div class="col-md-6">
                     <h6><i class="fas fa-list me-2"></i>商品清单</h6>
-                    <ul class="list-group">
-                      <li class="list-group-item d-flex justify-content-between">
-                        <span>无线鼠标 M2</span>
-                        <span>100件 × ¥85</span>
-                      </li>
+                    <ul class="list-group" id="orderItemsList">
+                      <!-- 商品清单将通过JavaScript填充 -->
                     </ul>
                   </div>
                 </div>
                 <hr>
                 <h6><i class="fas fa-history me-2"></i>审批记录</h6>
-                <div class="timeline">
-                  <div class="timeline-item">
-                    <div class="timeline-icon bg-success">
-                      <i class="fas fa-check"></i>
-                    </div>
-                    <div class="timeline-content">
-                      <span class="small text-secondary">2023-09-02 15:00</span>
-                      <p class="mb-0">李经理：同意采购申请</p>
-                      <p class="text-muted small">备注：符合季度采购计划</p>
-                    </div>
-                  </div>
+                <div class="timeline" id="approvalHistory">
+                  <!-- 审批记录将通过JavaScript填充 -->
                 </div>
               </div>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -672,21 +612,101 @@
 <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  //========================商品管理
+  document.addEventListener('DOMContentLoaded', function() {
+    const productCodeInput = document.getElementById('productCode');
+    
+    if (productCodeInput) {
+        productCodeInput.addEventListener('change', async function() {
+            const productCode = this.value.trim();
+            if (!productCode) return;
+            
+            try {
+                const response = await fetch(`/api/products?code=${encodeURIComponent(productCode)}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || '商品查询失败');
+                }
+                
+                const product = await response.json();
+                
+                // 填充基本信息
+                document.getElementById('productName').value = product.name || '';
+                document.getElementById('productCategory').value = product.category || '';
+                
+                // 清空现有属性
+                const attributesContainer = document.getElementById('attributesContainer');
+                attributesContainer.innerHTML = '';
+                
+                // 处理并显示attributes
+                const attributes = product.attributes || {};
+                for (const [key, value] of Object.entries(attributes)) {
+                    addAttributeField(key, value);
+                }
+                
+            } catch (error) {
+                console.error('获取商品信息失败:', error);
+                alert(error.message || '获取商品信息失败，请检查商品码是否正确');
+                clearProductForm();
+            }
+        });
+    }
+});
+
+// 添加属性字段的函数（带预填充值）
+function addAttributeField(name = '', value = '') {
+    const container = document.getElementById('attributesContainer');
+    const newField = document.createElement('div');
+    newField.className = 'col-md-4';
+    newField.innerHTML = `
+        <div class="border p-3 rounded">
+            <input type="text" class="form-control mb-2 attribute-name" 
+                   placeholder="属性名称" value="${escapeHtml(name)}">
+            <input type="text" class="form-control attribute-value" 
+                   placeholder="属性值" value="${escapeHtml(value)}">
+            <button class="btn btn-link text-danger btn-sm mt-2 p-0"
+                    onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i> 删除
+            </button>
+        </div>
+    `;
+    container.appendChild(newField);
+}
+
+// 防止XSS攻击的简单转义函数
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// 清空表单的函数
+function clearProductForm() {
+    document.getElementById('productName').value = '';
+    document.getElementById('productCategory').value = '';
+    document.getElementById('attributesContainer').innerHTML = '';
+}
+
 // 表单提交处理
 document.getElementById('productForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-
+    
     // 收集表单数据
     const product = {
+        code: document.getElementById('productCode').value,
         name: document.getElementById('productName').value,
         category: document.getElementById('productCategory').value,
         attributes: {}
     };
-
+    
     // 收集属性数据
     const attributeNames = document.querySelectorAll('.attribute-name');
     const attributeValues = document.querySelectorAll('.attribute-value');
-
+    
     attributeNames.forEach((nameInput, index) => {
         const name = nameInput.value.trim();
         const value = attributeValues[index].value.trim();
@@ -694,7 +714,7 @@ document.getElementById('productForm').addEventListener('submit', async function
             product.attributes[name] = value;
         }
     });
-
+    
     try {
         // 发送到后端
         const response = await fetch('/api/products', {
@@ -704,46 +724,722 @@ document.getElementById('productForm').addEventListener('submit', async function
             },
             body: JSON.stringify(product)
         });
-
+        
         const result = await response.json();
-
+        
         if (response.ok) {
-            alert('商品保存成功！');
+            alert(`商品${result.action === 'created' ? '添加' : '更新'}成功！`);
             // 重置表单
             this.reset();
-            document.getElementById('attributesContainer').innerHTML = `
-                <div class="col-md-4">
-                    <div class="border p-3 rounded">
-                        <input type="text" class="form-control mb-2 attribute-name" placeholder="属性名称">
-                        <input type="text" class="form-control attribute-value" placeholder="属性值">
-                    </div>
-                </div>
-            `;
+            document.getElementById('attributesContainer').innerHTML = '';
         } else {
-            alert(`保存失败: ${result.error || '未知错误'}`);
+            alert(`操作失败: ${result.error || '未知错误'}`);
         }
     } catch (error) {
-        console.error('保存商品出错:', error);
-        alert('保存商品时发生错误，请检查控制台');
+        console.error('操作商品出错:', error);
+        alert('操作商品时发生错误，请检查控制台');
     }
 });
 
+//=====================采购管理
+// 加载采购管理页面的订单
+async function loadPurchaseManagementOrders() {
+    try {
+        const response = await fetch('/api/purchase-orders');
+        if (!response.ok) throw new Error('获取订单列表失败');
+        
+        const orders = await response.json();
+        renderPurchaseManagementOrders(orders);
+    } catch (error) {
+        console.error('加载采购订单出错:', error);
+        alert('加载采购订单失败: ' + error.message);
+    }
+}
 
+// 渲染采购管理页面的订单列表
+function renderPurchaseManagementOrders(orders) {
+    const tbody = document.querySelector('#purchaseManagementTable tbody');
+    tbody.innerHTML = '';
+    
+    orders.forEach(order => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-status', getStatusKey(order.status));
+        
+        row.innerHTML = `
+            <td>${escapeHtml(order.order_code)}</td>
+            <td>${escapeHtml(order.supplier_name)}</td>
+            <td class="fw-bold">¥${(order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00')}</td>
+            <td>
+                <span class="status-badge ${getStatusBadgeClass(order.status)}">
+                    <i class="fas ${getStatusIcon(order.status)} me-2"></i>
+                    ${escapeHtml(order.status)}
+                </span>
+            </td>
+            <td>${order.created_at ? new Date(order.created_at).toLocaleString() : ''}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 采购管理页面的订单筛选
+function filterPurchaseOrders(status) {
+    const rows = document.querySelectorAll('#purchaseManagementTable tbody tr');
+    
+    rows.forEach(row => {
+        if (status === 'all' || row.getAttribute('data-status') === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // 更新按钮状态
+    document.querySelectorAll('#purchase [data-status]').forEach(btn => {
+        if (btn.getAttribute('data-status') === status) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// 在DOM加载完成后添加采购管理页面的加载逻辑
+document.addEventListener('DOMContentLoaded', function() {
+    // 监听采购管理标签页的切换
+    document.querySelector('a[href="#purchase"]').addEventListener('shown.bs.tab', function() {
+        loadPurchaseManagementOrders();
+    });
+    
+    // 如果当前是采购管理页面，直接加载
+    if (window.location.hash === '#purchase') {
+        loadPurchaseManagementOrders();
+    }
+});
+
+// 加载供应商选项
+async function loadSupplierOptions() {
+  try {
+    const response = await fetch('/api/suppliers');
+    if (!response.ok) throw new Error('获取供应商列表失败');
+    
+    const suppliers = await response.json();
+    const select = document.getElementById('supplierSelect');
+    
+    // 清空现有选项（保留第一个空选项）
+    while (select.options.length > 1) {
+      select.remove(1);
+    }
+    
+    // 添加供应商选项
+    suppliers.forEach(supplier => {
+      const option = document.createElement('option');
+      option.value = supplier.id;
+      option.textContent = supplier.name;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error('加载供应商选项出错:', error);
+    alert('加载供应商选项失败: ' + error.message);
+  }
+}
+
+// 添加订单商品行
+function addOrderItem(productCode = '', productName = '', quantity = 1, unitPrice = 0) {
+  const container = document.getElementById('orderItemsContainer');
+  const newItem = document.createElement('div');
+  newItem.className = 'col-12 border p-3 rounded mb-3';
+  newItem.innerHTML = `
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label text-secondary">商品编码</label>
+        <input type="text" class="form-control item-code" placeholder="输入商品编码" value="${escapeHtml(productCode)}" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label text-secondary">商品名称</label>
+        <input type="text" class="form-control item-name" placeholder="输入商品名称" value="${escapeHtml(productName)}" required>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label text-secondary">数量</label>
+        <input type="number" class="form-control item-quantity" min="1" value="${quantity}" required>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label text-secondary">单价</label>
+        <input type="number" class="form-control item-price" min="0" step="0.01" value="${unitPrice}" required>
+      </div>
+    </div>
+    <button class="btn btn-link text-danger btn-sm mt-2 p-0 float-end" onclick="this.parentElement.parentElement.remove()">
+      <i class="fas fa-times"></i> 删除
+    </button>
+  `;
+  container.appendChild(newItem);
+
+  // 添加商品编码输入框的change事件监听器
+  const codeInput = newItem.querySelector('.item-code');
+  codeInput.addEventListener('change', async function() {
+    const code = this.value.trim();
+    if (!code) return;
+    
+    try {
+      const response = await fetch(`/api/products?code=${encodeURIComponent(code)}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '商品查询失败');
+      }
+      
+      const product = await response.json();
+      
+      // 确保DOM元素已经存在再设置值
+      const itemRow = this.closest('.row.g-3');  // 修改选择器确保准确找到父元素
+      if (!itemRow) {
+        console.error('无法找到商品行元素');
+        return;
+      }
+      
+      const nameInput = itemRow.querySelector('.item-name');
+      const priceInput = itemRow.querySelector('.item-price');
+      
+      if (!nameInput || !priceInput) {
+        console.error('无法找到商品名称或单价输入框');
+        return;
+      }
+      
+      // 填充商品名称
+      nameInput.value = product.name || '';
+      
+      // 从attributes中解析价格
+      let price = 0;
+      try {
+        const attributes = typeof product.attributes === 'string' 
+          ? JSON.parse(product.attributes) 
+          : product.attributes || {};
+        price = parseFloat(attributes['价格']) || 0;
+      } catch (e) {
+        console.error('解析商品属性出错:', e);
+      }
+      
+      // 填充单价
+      priceInput.value = price;
+      
+    } catch (error) {
+      console.error('获取商品信息失败:', error);
+      alert(error.message || '获取商品信息失败，请检查商品码是否正确');
+    }
+  });
+}
+
+// 处理创建订单表单提交
+document.getElementById('createOrderForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  // 收集表单数据
+  const orderData = {
+    order_code: document.getElementById('orderCode').value,
+    supplier_id: document.getElementById('supplierSelect').value,
+    created_by: document.getElementById('createdBy').value,
+    items: []
+  };
+  
+  // 收集商品数据
+  const itemCodes = document.querySelectorAll('.item-code');
+  const itemNames = document.querySelectorAll('.item-name');
+  const itemQuantities = document.querySelectorAll('.item-quantity');
+  const itemPrices = document.querySelectorAll('.item-price');
+  
+  // 验证至少有一个商品
+  if (itemCodes.length === 0) {
+    alert('请至少添加一个商品');
+    return;
+  }
+  
+  // 计算总金额
+  let totalAmount = 0;
+  
+  itemCodes.forEach((codeInput, index) => {
+    const code = codeInput.value.trim();
+    const name = itemNames[index].value.trim();
+    const quantity = parseInt(itemQuantities[index].value);
+    const unitPrice = parseFloat(itemPrices[index].value);
+    
+    if (!code || !name || isNaN(quantity) || isNaN(unitPrice)) {
+      alert('请填写完整的商品信息');
+      return;
+    }
+    
+    const itemTotal = quantity * unitPrice;
+    totalAmount += itemTotal;
+    
+    orderData.items.push({
+      product_code: code,
+      product_name: name,
+      quantity: quantity,
+      unit_price: unitPrice,
+      total_price: itemTotal
+    });
+  });
+  
+  // 添加总金额
+  orderData.total_amount = totalAmount;
+  
+  try {
+    // 发送到后端创建订单
+    const response = await fetch('/api/purchase-orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(orderData)
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      alert('订单创建成功！');
+      // 重置表单
+      this.reset();
+      document.getElementById('orderItemsContainer').innerHTML = '';
+      // 重新加载订单列表
+      loadPurchaseOrders();
+      loadPurchaseManagementOrders();
+    } else {
+      alert(`创建订单失败: ${result.error || '未知错误'}`);
+    }
+  } catch (error) {
+    console.error('创建订单出错:', error);
+    alert('创建订单时发生错误，请检查控制台');
+  }
+});
+
+// 在DOM加载完成后添加供应商选项加载逻辑
+document.addEventListener('DOMContentLoaded', function() {
+  // 监听采购管理标签页的切换
+  document.querySelector('a[href="#purchase"]').addEventListener('shown.bs.tab', function() {
+    loadSupplierOptions();
+  });
+  
+  // 如果当前是采购管理页面，直接加载
+  if (window.location.hash === '#purchase') {
+    loadSupplierOptions();
+  }
+});
+
+//==========================库存管理
+// 加载库存数据
+async function loadInventory() {
+    try {
+        const response = await fetch('/api/inventory');
+        if (!response.ok) throw new Error('获取库存列表失败');
+        
+        const inventoryData = await response.json();
+        renderInventory(inventoryData);
+    } catch (error) {
+        console.error('加载库存出错:', error);
+        alert('加载库存失败: ' + error.message);
+    }
+}
+
+// 渲染库存数据
+function renderInventory(data) {
+    const tbody = document.querySelector('#inventoryTable tbody');
+    tbody.innerHTML = '';
+    
+    data.forEach(item => {
+        const row = document.createElement('tr');
+        
+        // 判断库存状态
+        let statusClass, statusText, statusIcon;
+        if (item.current_stock < item.safety_stock) {
+            statusClass = 'bg-danger text-white';
+            statusText = '库存不足';
+            statusIcon = 'fa-exclamation-triangle';
+        } else if (item.current_stock < item.safety_stock * 1.2) {
+            statusClass = 'bg-warning text-dark';
+            statusText = '库存预警';
+            statusIcon = 'fa-exclamation-circle';
+        } else {
+            statusClass = 'bg-success text-white';
+            statusText = '库存充足';
+            statusIcon = 'fa-check-circle';
+        }
+        
+        row.innerHTML = `
+            <td>${escapeHtml(item.product_name)}</td>
+            <td>${escapeHtml(item.product_code)}</td>
+            <td>${escapeHtml(item.warehouse_name)}</td>
+            <td class="fw-bold">${item.current_stock}</td>
+            <td>${item.safety_stock}</td>
+            <td>
+                <span class="status-badge ${statusClass}">
+                    <i class="fas ${statusIcon} me-2"></i>
+                    ${statusText}
+                </span>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 在DOM加载完成后添加库存加载逻辑
+document.addEventListener('DOMContentLoaded', function() {
+    // 监听库存管理标签页的切换
+    document.querySelector('a[href="#inventory"]').addEventListener('shown.bs.tab', function() {
+        loadInventory();
+    });
+    
+    // 如果当前是库存管理页面，直接加载
+    if (window.location.hash === '#inventory') {
+        loadInventory();
+    }
+});
+
+function searchInventory() {
+    const searchTerm = document.getElementById('inventorySearch').value.toLowerCase();
+    const rows = document.querySelectorAll('#inventoryTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// 根据商品码填充商品名称
+async function fillProductName() {
+    const productCode = document.getElementById('transferProductCode').value.trim();
+    if (!productCode) {
+        alert('请输入商品编码');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/products?code=${encodeURIComponent(productCode)}`);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || '商品查询失败');
+        }
+        
+        const product = await response.json();
+        document.getElementById('transferProductName').value = product.name || '未知商品';
+    } catch (error) {
+        console.error('获取商品信息失败:', error);
+        alert(error.message || '获取商品信息失败，请检查商品码是否正确');
+        document.getElementById('transferProductName').value = '';
+    }
+}
+
+// 处理调拨表单提交
+document.getElementById('transferForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const productCode = document.getElementById('transferProductCode').value.trim();
+    const productName = document.getElementById('transferProductName').value.trim();
+    const fromWarehouse = document.getElementById('fromWarehouse').value;
+    const toWarehouse = document.getElementById('toWarehouse').value;
+    const quantity = parseInt(document.getElementById('transferQuantity').value);
+    
+    // 验证表单数据
+    if (!productCode || !productName) {
+        alert('请先输入有效的商品编码并查询');
+        return;
+    }
+    
+    if (!fromWarehouse || !toWarehouse) {
+        alert('请选择来源仓库和目标仓库');
+        return;
+    }
+    
+    if (fromWarehouse === toWarehouse) {
+        alert('来源仓库和目标仓库不能相同');
+        return;
+    }
+    
+    if (isNaN(quantity) || quantity <= 0) {
+        alert('请输入有效的调拨数量');
+        return;
+    }
+    
+    try {
+        // 发送调拨请求
+        const response = await fetch('/api/inventory/transfer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                productCode,
+                fromWarehouse,
+                toWarehouse,
+                quantity
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert('库存调拨成功！');
+            // 重置表单
+            this.reset();
+            document.getElementById('transferProductName').value = '';
+            // 重新加载库存数据
+            loadInventory();
+        } else {
+            alert(`调拨失败: ${result.error || '未知错误'}`);
+        }
+    } catch (error) {
+        console.error('库存调拨出错:', error);
+        alert('库存调拨时发生错误，请检查控制台');
+    }
+});
+
+// 加载调拨记录
+async function loadTransferHistory() {
+    try {
+        const response = await fetch('/api/inventory/transfers');
+        if (!response.ok) throw new Error('获取调拨记录失败');
+        
+        const transfers = await response.json();
+        renderTransferHistory(transfers);
+    } catch (error) {
+        console.error('加载调拨记录出错:', error);
+        alert('加载调拨记录失败: ' + error.message);
+    }
+}
+
+// 渲染调拨记录
+function renderTransferHistory(transfers) {
+    const container = document.getElementById('transferHistory');
+    container.innerHTML = '';
+    
+    transfers.forEach(transfer => {
+        const item = document.createElement('div');
+        item.className = 'timeline-item';
+        
+        item.innerHTML = `
+            <div class="timeline-icon bg-info">
+                <i class="fas fa-truck-moving"></i>
+            </div>
+            <div class="timeline-content">
+                <span class="small text-secondary">${new Date(transfer.transferred_at).toLocaleString()}</span>
+                <p class="mb-1">
+                    <span class="fw-bold">${transfer.product_name} (${transfer.product_code})</span>
+                    <span class="badge bg-light text-dark mx-2">${transfer.quantity}件</span>
+                </p>
+                <p class="mb-0 small">
+                    <span class="text-danger">${transfer.from_warehouse_name}</span>
+                    <i class="fas fa-arrow-right mx-2"></i>
+                    <span class="text-success">${transfer.to_warehouse_name}</span>
+                </p>
+                <p class="small text-muted mt-1">操作人: ${transfer.transferred_by}</p>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+// 在DOM加载完成后添加调拨记录加载逻辑
+document.addEventListener('DOMContentLoaded', function() {
+    // 监听库存管理标签页的切换
+    document.querySelector('a[href="#inventory"]').addEventListener('shown.bs.tab', function() {
+        loadTransferHistory();
+    });
+    
+    // 如果当前是库存管理页面，直接加载
+    if (window.location.hash === '#inventory') {
+        loadTransferHistory();
+    }
+});
+
+//==========================供应商
+// 修改addAttribute函数以使用新的类名
+function addAttribute() {
+    const container = document.getElementById('attributesContainer');
+    const newField = document.createElement('div');
+    newField.className = 'col-md-4';
+    newField.innerHTML = `
+        <div class="border p-3 rounded">
+            <input type="text" class="form-control mb-2 attribute-name" placeholder="属性名称">
+            <input type="text" class="form-control attribute-value" placeholder="属性值">
+            <button class="btn btn-link text-danger btn-sm mt-2 p-0"
+                    onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i> 删除
+            </button>
+        </div>
+    `;
+    container.appendChild(newField);
+}
+
+// 渲染信用评级星星
+function renderCreditRating(rating) {
+    if (!rating) return '';
+    
+    const starMap = {
+        'AAA': 5,
+        'AA': 4,
+        'A': 3,
+        'B': 2,
+        'C': 1
+    };
+    
+    const starCount = starMap[rating] || 0;
+    let stars = '';
+    
+    for (let i = 0; i < 5; i++) {
+        if (i < starCount) {
+            stars += '<i class="fas fa-star"></i>';
+        } else if (i === starCount && rating.includes('+')) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+        } else {
+            stars += '<i class="far fa-star"></i>';
+        }
+    }
+    
+    return stars;
+}
+
+// 填充供应商表单
+function fillSupplierForm(supplier) {
+    if (!supplier) return; // 如果 supplier 是 null/undefined，直接返回
+    
+    const form = document.getElementById('supplierForm');
+    if (!form) return; // 如果表单不存在，直接返回
+    
+    // 确保所有 input 元素都存在
+    const elements = {
+        id: document.getElementById('supplierId'),
+        name: document.getElementById('supplierName'),
+        contactPerson: document.getElementById('supplierContactPerson'),
+        contactPhone: document.getElementById('supplierContactPhone'),
+        creditRating: document.getElementById('supplierCreditRating'),
+        status: document.getElementById('supplierStatus'),
+        evaluation: document.getElementById('supplierEvaluation')
+    };
+    
+    // 如果任一元素不存在，直接返回
+    if (Object.values(elements).some(el => !el)) {
+        console.error('供应商表单元素未找到！');
+        return;
+    }
+    
+    // 安全赋值
+    elements.id.value = supplier.id || '';
+    elements.name.value = supplier.name || '';
+    elements.contactPerson.value = supplier.contact_person || '';
+    elements.contactPhone.value = supplier.contact_phone || '';
+    elements.creditRating.value = supplier.credit_rating || 'A';
+    elements.status.value = supplier.cooperation_status || '合作中';
+    elements.evaluation.value = supplier.latest_evaluation || '';
+}
+
+// 渲染供应商列表
+function renderSuppliers(suppliers) {
+    const tbody = document.querySelector('#suppliersTable tbody');
+    tbody.innerHTML = '';
+    
+    suppliers.forEach(supplier => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="avatar bg-primary text-white me-3">${supplier.name.charAt(0)}</div>
+                    <div>
+                        <div class="fw-bold">${escapeHtml(supplier.name)}</div>
+                        <div class="small text-secondary">
+                            ${escapeHtml(supplier.contact_person || '未设置')} 
+                            ${supplier.contact_phone ? `| ${escapeHtml(supplier.contact_phone)}` : ''}
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span class="status-badge ${
+                    supplier.cooperation_status === '合作中' ? 'bg-success text-white' : 
+                    supplier.cooperation_status === '已暂停' ? 'bg-warning text-dark' : 'bg-danger text-white'
+                }">
+                    <i class="fas ${
+                        supplier.cooperation_status === '合作中' ? 'fa-check-circle' : 
+                        supplier.cooperation_status === '已暂停' ? 'fa-pause-circle' : 'fa-ban'
+                    } me-2"></i>${supplier.cooperation_status}
+                </span>
+            </td>
+            <td>
+                <div class="star-rating text-warning">
+                    ${renderCreditRating(supplier.credit_rating)}
+                </div>
+            </td>
+            <td>
+                ${supplier.last_saleDate ? `
+                    <div class="small">${new Date(supplier.last_saleDate).toLocaleDateString()}</div>
+                    <div class="small text-success">¥${(supplier.last_saleSum ? Number(supplier.last_saleSum).toFixed(2) : '0.00')}</div>
+                ` : '<div class="small text-secondary">无交易记录</div>'}
+            </td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary me-2" onclick="editSupplier(${supplier.id})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteSupplier(${supplier.id})">
+                    <i class="fas fa-ban"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 加载供应商列表
+async function loadSuppliers() {
+    try {
+        const response = await fetch('/api/suppliers');
+        if (!response.ok) throw new Error('获取供应商列表失败');
+        
+        const suppliers = await response.json();
+        renderSuppliers(suppliers);
+        
+        // 如果有供应商数据，可以预填充第一个供应商到表单
+        if (suppliers.length > 0) {
+            const supplierForm = document.getElementById('supplierForm');
+            if (supplierForm) {
+                fillSupplierForm(suppliers[0]);
+            }
+        }
+    } catch (error) {
+        console.error('加载供应商列表出错:', error);
+        alert('加载供应商列表失败: ' + error.message);
+    }
+}
+
+// 页面加载时获取供应商数据
+document.addEventListener('DOMContentLoaded', function() {
+    // 只有当在供应商页面时才加载
+    if (window.location.hash === '#supplier') {
+        loadSuppliers();
+    }
+    
+    // 监听标签页切换
+    document.querySelectorAll('.nav-link').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            if (event.target.getAttribute('href') === '#supplier') {
+                if (document.getElementById('supplierForm')) {
+                    loadSuppliers();
+                }
+            }
+        });
+    });
+});
 
 // 供应商表单提交处理
 document.getElementById('supplierForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-
+    
     const supplierData = {
-        id: document.getElementById('supplierId').value || null,
         name: document.getElementById('supplierName').value,
         credit_rating: document.getElementById('supplierCreditRating').value,
         cooperation_status: document.getElementById('supplierStatus').value,
         latest_evaluation: document.getElementById('supplierEvaluation').value
     };
-
+    
     try {
-        // 发送到后端
         const response = await fetch('/api/suppliers', {
             method: 'PUT',
             headers: {
@@ -751,9 +1447,9 @@ document.getElementById('supplierForm').addEventListener('submit', async functio
             },
             body: JSON.stringify(supplierData)
         });
-
+        
         const result = await response.json();
-
+        
         if (response.ok) {
             alert('供应商信息更新成功！');
             loadSuppliers(); // 重新加载供应商列表
@@ -766,181 +1462,322 @@ document.getElementById('supplierForm').addEventListener('submit', async functio
     }
 });
 
-// 加载供应商列表
-async function loadSuppliers() {
-    try {
-        const response = await fetch('/api/suppliers');
-        const suppliers = await response.json();
+// 全局变量存储当前选中的订单ID
+let currentOrderId = null;
 
-        // 这里可以添加代码来更新供应商列表的显示
-        console.log('供应商列表:', suppliers);
-
-        // 如果有供应商数据，可以预填充第一个供应商到表单
-        if (suppliers.length > 0) {
-            const firstSupplier = suppliers[0];
-            document.getElementById('supplierId').value = firstSupplier.id;
-            document.getElementById('supplierName').value = firstSupplier.name;
-            document.getElementById('supplierCreditRating').value = firstSupplier.credit_rating;
-            document.getElementById('supplierStatus').value = firstSupplier.cooperation_status;
-            document.getElementById('supplierEvaluation').value = firstSupplier.latest_evaluation || '';
-        }
-    } catch (error) {
-        console.error('加载供应商列表出错:', error);
-    }
-}
-
-// 页面加载时获取供应商数据
+// 页面加载时获取采购订单数据
 document.addEventListener('DOMContentLoaded', function() {
     // 只有当在供应商页面时才加载
     if (window.location.hash === '#supplier') {
-        loadSuppliers();
+        loadPurchaseOrders();
     }
-    loadProductListForTransfer();
-});
-
-  // 示例图表
-  const ctx = document.getElementById('purchaseChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['电子产品', '办公用品', '其他'],
-      datasets: [{
-        data: [65, 25, 10],
-        backgroundColor: [
-          'rgba(67, 97, 238, 0.8)',
-          'rgba(63, 55, 201, 0.8)',
-          'rgba(239, 71, 111, 0.8)'
-        ]
-      }]
-    }
-  });
-
-  // 审批操作函数
-  function approveOrder() {
-    $('#approveModal').modal('hide');
-    // 实际开发中此处应调用API
-    const $row = $('tr[data-status="pending"]:first');
-    $row.find('.status-badge')
-      .removeClass('bg-warning text-dark')
-      .addClass('bg-success text-white')
-      .html('<i class="fas fa-check-circle me-2"></i>已通过');
-    $row.find('td:last').html(`
-        <button class="btn btn-sm btn-outline-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#detailModal">
-            <i class="fas fa-file-invoice"></i> 详情
-        </button>
-    `);
-    $row.attr('data-status', 'approved');
-  }
-
-  // 订单筛选功能
-  $('[data-status]').click(function() {
-    const status = $(this).data('status');
-    $('.btn[data-status]').removeClass('active');
-    $(this).addClass('active');
-
-    if(status === 'all') {
-      $('tbody tr').show();
-    } else {
-      $('tbody tr').hide();
-      $(`tbody tr[data-status="${status}"]`).show();
-    }
-  });
-
-// === 商品调拨功能 ===
-document.getElementById('transferForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-    const goodsId = parseInt(document.getElementById('transferGoodsSelect').value);
-  const fromWarehouse = document.getElementById('fromWarehouse').value;
-  const toWarehouse = document.getElementById('toWarehouse').value;
-  const quantity = parseInt(document.getElementById('transferQuantity').value);
-
-  const payload = { goodsId, fromWarehouse, toWarehouse, quantity };
-
-  try {
-    const res = await fetch('/api/inventory/transfer', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const result = await res.json();
-    if (res.ok) {
-      alert('调拨成功！');
-    } else {
-      alert('调拨失败：' + result.error);
-    }
-  } catch (err) {
-    console.error('调拨出错：', err);
-    alert('系统错误');
-  }
-});
-
-/// === 加载商品列表填充调拨下拉 ===
-async function loadProductListForTransfer() {
-    try {
-        const res = await fetch('/api/productsForTransfer');
-        if (!res.ok) throw new Error('网络响应不正常');
-
-        const data = await res.json();
-        const select = document.getElementById('transferGoodsSelect');
-
-        // 清空现有选项
-        select.innerHTML = '';
-
-        // 添加默认选项
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = '选择商品';
-        select.appendChild(defaultOption);
-
-        // 添加商品选项
-        data.forEach(product => {
-            const option = document.createElement('option');
-            option.value = product.id;
-            option.textContent = product.name;
-            select.appendChild(option);
+    
+    // 监听标签页切换
+    document.querySelectorAll('.nav-link').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            if (event.target.getAttribute('href') === '#supplier') {
+                loadPurchaseOrders();
+            }
         });
-    } catch (err) {
-        console.error('加载商品列表失败:', err);
-        alert('加载商品列表失败，请检查控制台');
+    });
+});
+
+// 加载采购订单
+async function loadPurchaseOrders() {
+    try {
+        const response = await fetch('/api/purchase-orders');
+        if (!response.ok) throw new Error('获取订单列表失败');
+        
+        const orders = await response.json();
+        renderPurchaseOrders(orders);
+    } catch (error) {
+        console.error('加载采购订单出错:', error);
+        alert('加载采购订单失败: ' + error.message);
     }
 }
 
-// === 库存查询功能 ===
-document.getElementById('inventorySearchButton').addEventListener('click', async () => {
-    const query = document.getElementById('inventorySearchInput').value;
-    console.log('搜索查询:', query); // 添加日志
+// 渲染采购订单列表
+function renderPurchaseOrders(orders) {
+    const tbody = document.querySelector('#purchaseOrdersTable tbody');
+    tbody.innerHTML = '';
+    
+    orders.forEach(order => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-status', getStatusKey(order.status));
+        
+        row.innerHTML = `
+            <td>${escapeHtml(order.order_code)}</td>
+            <td>${escapeHtml(order.supplier_name)}</td>
+            <td class="fw-bold">¥${(order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00')}</td>
+            <td>
+                <span class="status-badge ${getStatusBadgeClass(order.status)}">
+                    <i class="fas ${getStatusIcon(order.status)} me-2"></i>
+                    ${escapeHtml(order.status)}
+                </span>
+            </td>
+            <td>${order.created_at ? new Date(order.created_at).toLocaleString() : ''}</td>
+            <td>
+                ${order.status === '待审批' ? `
+                    <button class="btn btn-sm btn-success me-2" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#approveModal"
+                            onclick="setCurrentOrder(${order.id})">
+                        <i class="fas fa-check"></i> 审批
+                    </button>
+                    <button class="btn btn-sm btn-danger me-2" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#rejectModal"
+                            onclick="setCurrentOrder(${order.id})">
+                        <i class="fas fa-times"></i> 拒绝
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" 
+                            onclick="showOrderDetail(${order.id})">
+                        <i class="fas fa-eye"></i> 详情
+                    </button>
+                ` : order.status === '已拒绝' ? `
+                    <button class="btn btn-sm btn-outline-primary me-2" 
+                            onclick="showOrderDetail(${order.id})">
+                        <i class="fas fa-eye"></i> 详情
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#approveModal"
+                            onclick="setCurrentOrder(${order.id})">
+                        <i class="fas fa-redo"></i> 重新提交
+                    </button>
+                ` : `
+                    <button class="btn btn-sm btn-outline-primary" 
+                            onclick="showOrderDetail(${order.id})">
+                        <i class="fas fa-eye"></i> 详情
+                    </button>
+                `}
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 设置当前选中的订单ID
+function setCurrentOrder(orderId) {
+    currentOrderId = orderId;
+}
+
+// 审批订单
+async function approveOrder() {
+    const notes = document.getElementById('approvalNotes').value;
+    
     try {
-        const res = await fetch('/api/inventory?search=' + encodeURIComponent(query));
-        const data = await res.json();
-        console.log('搜索结果:', data); // 添加日志
-        const tbody = document.getElementById('inventoryTableBody');
-        tbody.innerHTML = '';
-        data.forEach(item => {
-            const status = item.current < item.safety ?
-                '<span class="status-badge bg-danger text-white"><i class="fas fa-exclamation-triangle me-2"></i>库存不足</span>' :
-                '<span class="status-badge bg-success text-white"><i class="fas fa-check-circle me-2"></i>正常</span>';
-            tbody.innerHTML += `
-        <tr>
-          <td>${item.name}</td>
-          <td>${item.warehouse}</td>
-          <td class="fw-bold">${item.current}</td>
-          <td>${item.safety}</td>
-          <td>${status}</td>
-        </tr>
-      `;
+        const response = await fetch(`/api/purchase-orders/${currentOrderId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                status: '已通过',
+                approved_by: '管理员', // 实际应用中应该从登录信息获取真实用户名
+                notes: notes,
+                rejection_reason: null // 明确设置为null
+            })
         });
-    } catch (err) {
-        console.error('库存查询失败:', err);
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || '审批操作失败');
+        }
+        
+        if (result.success) {
+            alert('订单已成功审批通过！');
+            $('#approveModal').modal('hide');
+            document.getElementById('approvalNotes').value = ''; // 清空备注
+            loadPurchaseOrders(); // 重新加载订单列表
+        } else {
+            throw new Error(result.message || '审批操作失败');
+        }
+    } catch (error) {
+        console.error('审批订单出错:', error);
+        alert('审批订单失败: ' + error.message);
     }
-});
+}
 
+// 拒绝订单
+async function rejectOrder() {
+    const reason = document.getElementById('rejectionReason').value;
+    if (!reason) {
+        alert('请填写拒绝原因');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/purchase-orders/${currentOrderId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                status: '已拒绝',
+                approved_by: '管理员', // 实际应用中应该从登录信息获取真实用户名
+                rejection_reason: reason,
+                notes: null // 明确设置为null
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || '拒绝操作失败');
+        }
+        
+        if (result.success) {
+            alert('订单已成功拒绝！');
+            $('#rejectModal').modal('hide');
+            document.getElementById('rejectionReason').value = ''; // 清空原因
+            loadPurchaseOrders(); // 重新加载订单列表
+        } else {
+            throw new Error(result.message || '拒绝操作失败');
+        }
+    } catch (error) {
+        console.error('拒绝订单出错:', error);
+        alert('拒绝订单失败: ' + error.message);
+    }
+}
 
-// === 页面加载时初始化 ===
-window.addEventListener('DOMContentLoaded', () => {
-  loadProductListForTransfer();
-});
+// 显示订单详情
+async function showOrderDetail(orderId) {
+    try {
+        // 获取订单基本信息
+        const orderResponse = await fetch(`/api/purchase-orders/${orderId}`);
+        if (!orderResponse.ok) throw new Error('获取订单详情失败');
+        const order = await orderResponse.json();
+        
+        // 获取订单商品明细
+        const itemsResponse = await fetch(`/api/purchase-orders/${orderId}/items`);
+        if (!itemsResponse.ok) throw new Error('获取订单商品失败');
+        const items = await itemsResponse.json();
+        
+        // 填充基本信息
+        document.getElementById('orderDetailTitle').textContent = `采购订单详情 ${order.order_code}`;
+        
+        const basicInfoHtml = `
+            <li>供应商：${escapeHtml(order.supplier_name)}</li>
+            <li>总金额：¥${(order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00')}</li>
+            <li>创建时间：${order.created_at ? new Date(order.created_at).toLocaleString() : ''}</li>
+            <li>状态：<span class="status-badge ${getStatusBadgeClass(order.status)}">
+                <i class="fas ${getStatusIcon(order.status)} me-2"></i>
+                ${escapeHtml(order.status)}
+            </span></li>
+            ${order.approved_by ? `<li>审批人：${escapeHtml(order.approved_by)}</li>` : ''}
+            ${order.approved_at ? `<li>审批时间：${new Date(order.approved_at).toLocaleString()}</li>` : ''}
+            ${order.rejection_reason ? `<li>拒绝原因：${escapeHtml(order.rejection_reason)}</li>` : ''}
+        `;
+        document.getElementById('orderBasicInfo').innerHTML = basicInfoHtml;
+        
+        // 填充商品清单
+        const itemsHtml = items.map(item => `
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-bold">${escapeHtml(item.product_name)}</div>
+                    <div class="small text-secondary">编码：${escapeHtml(item.product_code)}</div>
+                </div>
+                <span class="badge bg-primary rounded-pill">
+                    ${item.quantity} × ¥${(item.unit_price ? Number(item.unit_price).toFixed(2) : '0.00')} = ¥${(item.unit_price ? Number(item.unit_price).toFixed(2) : '0.00')}
+                </span>
+            </li>
+        `).join('');
+        document.getElementById('orderItemsList').innerHTML = itemsHtml;
+        
+        // 填充审批历史
+        const historyHtml = `
+            <div class="timeline-item">
+                <div class="timeline-icon ${order.status === '已通过' ? 'bg-success' : order.status === '已拒绝' ? 'bg-danger' : 'bg-warning'}">
+                    <i class="fas ${order.status === '已通过' ? 'fa-check' : order.status === '已拒绝' ? 'fa-times' : 'fa-clock'}"></i>
+                </div>
+                <div class="timeline-content">
+                    <span class="small text-secondary">${order.created_at ? new Date(order.created_at).toLocaleString() : ''}</span>
+                    <p class="mb-0">订单创建</p>
+                </div>
+            </div>
+            ${order.approved_at ? `
+                <div class="timeline-item">
+                    <div class="timeline-icon ${order.status === '已通过' ? 'bg-success' : 'bg-danger'}">
+                        <i class="fas ${order.status === '已通过' ? 'fa-check' : 'fa-times'}"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <span class="small text-secondary">${new Date(order.approved_at).toLocaleString()}</span>
+                        <p class="mb-0">${order.approved_by || '系统'}：${order.status === '已通过' ? '审批通过' : '审批拒绝'}</p>
+                        ${order.rejection_reason ? `<p class="text-muted small">原因：${escapeHtml(order.rejection_reason)}</p>` : ''}
+                        ${order.notes ? `<p class="text-muted small">备注：${escapeHtml(order.notes)}</p>` : ''}
+                    </div>
+                </div>
+            ` : ''}
+        `;
+        document.getElementById('approvalHistory').innerHTML = historyHtml;
+        
+        // 显示模态框
+        $('#orderDetailModal').modal('show');
+    } catch (error) {
+        console.error('获取订单详情出错:', error);
+        alert('获取订单详情失败: ' + error.message);
+    }
+}
+
+// 订单状态筛选
+function filterOrders(status) {
+    const rows = document.querySelectorAll('#purchaseOrdersTable tbody tr');
+    
+    rows.forEach(row => {
+        if (status === 'all' || row.getAttribute('data-status') === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // 更新按钮状态
+    document.querySelectorAll('[data-status]').forEach(btn => {
+        if (btn.getAttribute('data-status') === status) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// 辅助函数：获取状态对应的CSS类
+function getStatusBadgeClass(status) {
+    const map = {
+        '待审批': 'bg-warning text-dark',
+        '已通过': 'bg-success text-white',
+        '已拒绝': 'bg-danger text-white',
+        '已完成': 'bg-info text-white',
+        '已取消': 'bg-secondary text-white'
+    };
+    return map[status] || 'bg-light text-dark';
+}
+
+// 辅助函数：获取状态对应的图标
+function getStatusIcon(status) {
+    const map = {
+        '待审批': 'fa-clock',
+        '已通过': 'fa-check-circle',
+        '已拒绝': 'fa-times-circle',
+        '已完成': 'fa-box-open',
+        '已取消': 'fa-ban'
+    };
+    return map[status] || 'fa-file-invoice';
+}
+
+// 辅助函数：将状态转换为筛选键
+function getStatusKey(status) {
+    const map = {
+        '待审批': 'pending',
+        '已通过': 'approved',
+        '已拒绝': 'rejected',
+        '已完成': 'completed',
+        '已取消': 'cancelled'
+    };
+    return map[status] || status;
+}
 </script>
 </body>
 </html>
