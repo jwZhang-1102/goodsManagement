@@ -12,3 +12,4 @@ npm install --save-dev nodemon
 # 6/5 刘宗杰 更新server.js 添加库存管理相关API
 # 6/5 金枫凯 更新server.js 添加采购订单管理相关API
 # 6/12 张经纬 更新server.js purchase.html
+# 6/12 刘宗杰 针对库存管理部分修改了server.js purchase.html的部分代码
