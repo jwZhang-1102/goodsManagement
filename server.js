@@ -456,6 +456,151 @@ router.delete('/purchase-orders/:id', async (ctx) => {
 });
 
 // =====================================
+// 库存管理API (新增/修改)
+// =====================================
+
+// 获取库存数据 (GET /api/inventory)
+router.get('/api/inventory', async (ctx) => {
+    try {
+        const searchQuery = ctx.query.search;
+        console.log('搜索参数:', searchQuery); // 添加日志
+
+        let sql = `
+            SELECT
+                i.InventoryID as id,
+                p.ProductName as name,
+                i.Warehouse as warehouse,
+                i.CurrentStock as current,
+                i.SafetyStock as safety
+            FROM
+                Inventory i
+                JOIN Products p ON i.ProductID = p.ProductID
+        `;
+        const params = [];
+
+        if (searchQuery) {
+            sql += ' WHERE p.ProductName LIKE ? OR p.ProductID = ?';
+            params.push(`%${searchQuery}%`, searchQuery);
+        }
+
+        console.log('执行SQL:', sql, params); // 添加日志
+        const [rows] = await pool.execute(sql, params);
+
+        ctx.status = 200;
+        ctx.body = rows;
+    } catch (err) {
+        console.error('获取库存数据出错:', err);
+        ctx.status = 500;
+        ctx.body = { error: '服务器内部错误' };
+    }
+});
+
+// 获取所有商品列表（用于调拨下拉框）
+router.get('/api/productsForTransfer', async (ctx) => {
+    try {
+        const [rows] = await pool.execute('SELECT ProductID as id, ProductName as name FROM Products');
+        console.log('商品列表:', rows); // 添加日志
+        ctx.status = 200;
+        ctx.body = rows;
+    } catch (err) {
+        console.error('获取调拨商品列表出错:', err);
+        ctx.status = 500;
+        ctx.body = { error: '服务器内部错误' };
+    }
+});
+
+
+// 提交库存调拨 (POST /api/inventory/transfer)
+router.post('/api/inventory/transfer', async (ctx) => {
+    const connection = await pool.getConnection(); // 从连接池获取连接
+    try {
+        await connection.beginTransaction(); // 开始事务
+
+        const { goodsId, fromWarehouse, toWarehouse, quantity } = ctx.request.body;
+
+        // 验证输入
+        if (!goodsId || !fromWarehouse || !toWarehouse || !quantity || quantity <= 0) {
+            ctx.status = 400;
+            ctx.body = { error: '请填写完整的调拨信息，数量必须大于0' };
+            await connection.rollback(); // 发生错误，回滚事务
+            return;
+        }
+
+        if (fromWarehouse === toWarehouse) {
+            ctx.status = 400;
+            ctx.body = { error: '来源仓库和目标仓库不能相同' };
+            await connection.rollback(); // 发生错误，回滚事务
+            return;
+        }
+
+        // 检查来源仓库库存是否足够
+        const [fromInventory] = await connection.execute(
+            'SELECT CurrentStock FROM Inventory WHERE ProductID = ? AND Warehouse = ?',
+            [goodsId, fromWarehouse]
+        );
+
+        if (fromInventory.length === 0 || fromInventory[0].CurrentStock < quantity) {
+            ctx.status = 400;
+            ctx.body = { error: '来源仓库库存不足' };
+            await connection.rollback(); // 发生错误，回滚事务
+            return;
+        }
+
+        // 减少来源仓库库存
+        await connection.execute(
+            'UPDATE Inventory SET CurrentStock = CurrentStock - ? WHERE ProductID = ? AND Warehouse = ?',
+            [quantity, goodsId, fromWarehouse]
+        );
+
+        // 增加目标仓库库存，如果不存在则插入
+        const [toInventory] = await connection.execute(
+            'SELECT InventoryID FROM Inventory WHERE ProductID = ? AND Warehouse = ?',
+            [goodsId, toWarehouse]
+        );
+
+        if (toInventory.length > 0) {
+            await connection.execute(
+                'UPDATE Inventory SET CurrentStock = CurrentStock + ? WHERE ProductID = ? AND Warehouse = ?',
+                [quantity, goodsId, toWarehouse]
+            );
+        } else {
+            // 如果目标仓库中没有该商品，则插入一条新记录，安全库存默认为0
+            await connection.execute(
+                'INSERT INTO Inventory (ProductID, Warehouse, CurrentStock, SafetyStock) VALUES (?, ?, ?, ?)',
+                [goodsId, toWarehouse, quantity, 0]
+            );
+        }
+
+        // 记录出库操作 (从来源仓库)
+        await connection.execute(
+            'INSERT INTO OutboundRecords (ProductID, Warehouse, Quantity, DestinationType, Operator, Comments) VALUES (?, ?, ?, ?, ?, ?)',
+            [goodsId, fromWarehouse, quantity, '调拨', '系统', `从${fromWarehouse}调拨到${toWarehouse}`]
+        );
+
+        // 记录入库操作 (到目标仓库)
+        await connection.execute(
+            'INSERT INTO InboundRecords (ProductID, Warehouse, Quantity, SourceType, Operator, Comments) VALUES (?, ?, ?, ?, ?, ?)',
+            [goodsId, toWarehouse, quantity, '调拨', '系统', `从${fromWarehouse}调拨到${toWarehouse}`]
+        );
+
+
+        await connection.commit(); // 提交事务
+        ctx.status = 200;
+        ctx.body = { success: true, message: '库存调拨成功' };
+
+    } catch (err) {
+        await connection.rollback(); // 发生错误，回滚事务
+        console.error('库存调拨事务失败:', err);
+        ctx.status = 500;
+        ctx.body = { error: '库存调拨失败，请重试或联系管理员' };
+    } finally {
+        if (connection) {
+            connection.release(); // 释放连接回连接池
+        }
+    }
+});
+
+// =====================================
 // 静态文件服务和首页路由
 // =====================================
 
