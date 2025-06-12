@@ -11,3 +11,4 @@ npm install --save-dev nodemon
 # 6/5 朱宇帆 更新index.html
 # 6/5 刘宗杰 更新server.js 添加库存管理相关API
 # 6/5 金枫凯 更新server.js 添加采购订单管理相关API
+# 6/12 张经纬 更新server.js purchase.html
