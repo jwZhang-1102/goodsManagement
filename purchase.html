@@ -304,118 +304,104 @@
     <!-- 接续之前的代码，在tab-content内继续添加以下内容 -->
 
     <!-- 库存管理 -->
-    <div class="tab-pane fade" id="inventory">
-      <div class="row g-4">
-        <!-- 库存查询 -->
-        <div class="col-lg-8">
+      <div class="col-lg-8">
           <div class="card-module p-4">
-            <h4 class="mb-4"><i class="fas fa-search me-2"></i>库存查询</h4>
-            <div class="input-group mb-4">
-              <input type="text" class="form-control" placeholder="输入商品名称/编码">
-              <button class="btn btn-gradient">
-                <i class="fas fa-search me-2"></i>搜索
+              <h4 class="mb-4"><i class="fas fa-search me-2"></i>库存查询</h4>
+              <div class="input-group mb-4">
+                  <input type="text" id="inventorySearchInput" class="form-control" placeholder="输入商品名称/编码"> <button id="inventorySearchButton" class="btn btn-gradient"> <i class="fas fa-search me-2"></i>搜索
               </button>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-module table-hover">
-                <thead class="bg-light">
-                <tr>
-                  <th>商品名称</th>
-                  <th>仓库</th>
-                  <th>当前库存</th>
-                  <th>安全库存</th>
-                  <th>状态</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                  <td>笔记本电脑 X1</td>
-                  <td>上海主仓</td>
-                  <td class="fw-bold">150</td>
-                  <td>200</td>
-                  <td>
-                                    <span class="status-badge bg-danger text-white">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>库存不足
-                                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>无线鼠标 M2</td>
-                  <td>北京分仓</td>
-                  <td class="fw-bold">850</td>
-                  <td>500</td>
-                  <td>
-                                    <span class="status-badge bg-success text-white">
-                                        <i class="fas fa-check-circle me-2"></i>正常
-                                    </span>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
+              </div>
+              <div class="table-responsive">
+                  <table class="table table-module table-hover">
+                      <thead class="bg-light">
+                      <tr>
+                          <th>商品名称</th>
+                          <th>仓库</th>
+                          <th>当前库存</th>
+                          <th>安全库存</th>
+                          <th>状态</th>
+                      </tr>
+                      </thead>
+                      <tbody id="inventoryTableBody"> <tr>
+                          <td>笔记本电脑 X1</td>
+                          <td>上海主仓</td>
+                          <td class="fw-bold">150</td>
+                          <td>200</td>
+                          <td>
+                                <span class="status-badge bg-danger text-white">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>库存不足
+                                </span>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td>无线鼠标 M2</td>
+                          <td>北京分仓</td>
+                          <td class="fw-bold">850</td>
+                          <td>500</td>
+                          <td>
+                                <span class="status-badge bg-success text-white">
+                                    <i class="fas fa-check-circle me-2"></i>正常
+                                </span>
+                          </td>
+                      </tr>
+                      </tbody>
+                  </table>
+              </div>
           </div>
-        </div>
+      </div>
 
-        <!-- 库存操作 -->
-        <div class="col-lg-4">
+      <div class="col-lg-4">
           <div class="card-module p-4 mb-4">
-            <h4 class="mb-4"><i class="fas fa-exchange-alt me-2"></i>库存调拨</h4>
-            <form>
-              <div class="mb-3">
-                <label class="form-label text-secondary">选择商品</label>
-                <select class="form-select">
-                  <option>笔记本电脑 X1</option>
-                  <option>无线鼠标 M2</option>
-                </select>
+              <h4 class="mb-4"><i class="fas fa-exchange-alt me-2"></i>库存调拨</h4>
+              <form id="transferForm"> <div class="mb-3">
+                  <label for="transferGoodsSelect" class="form-label text-secondary">选择商品</label> <select id="transferGoodsSelect" class="form-select"> </select>
               </div>
-              <div class="row g-3 mb-3">
-                <div class="col-6">
-                  <label class="form-label text-secondary">来源仓库</label>
-                  <select class="form-select">
-                    <option>上海主仓</option>
-                    <option>北京分仓</option>
-                  </select>
-                </div>
-                <div class="col-6">
-                  <label class="form-label text-secondary">目标仓库</label>
-                  <select class="form-select">
-                    <option>北京分仓</option>
-                    <option>上海主仓</option>
-                  </select>
-                </div>
-              </div>
-              <div class="mb-4">
-                <label class="form-label text-secondary">调拨数量</label>
-                <input type="number" class="form-control" min="1" value="10">
-              </div>
-              <button class="btn btn-gradient w-100">
-                <i class="fas fa-truck-moving me-2"></i>提交调拨
-              </button>
-            </form>
+                  <div class="row g-3 mb-3">
+                      <div class="col-6">
+                          <label for="fromWarehouse" class="form-label text-secondary">来源仓库</label>
+                          <select id="fromWarehouse" class="form-select">
+                              <option>上海分仓</option>
+                              <option>北京分仓</option>
+                              <option>深圳分仓</option> </select>
+                      </div>
+                      <div class="col-6">
+                          <label for="toWarehouse" class="form-label text-secondary">目标仓库</label>
+                          <select id="toWarehouse" class="form-select">
+                              <option>北京分仓</option>
+                              <option>上海分仓</option>
+                              <option>深圳分仓</option> </select>
+                      </div>
+                  </div>
+                  <div class="mb-4">
+                      <label for="transferQuantity" class="form-label text-secondary">调拨数量</label> <input type="number" id="transferQuantity" class="form-control" min="1" value="10"> </div>
+                  <button type="submit" class="btn btn-gradient w-100">
+                      <i class="fas fa-truck-moving me-2"></i>提交调拨
+                  </button>
+              </form>
           </div>
 
           <div class="card-module p-4">
-            <h4 class="mb-4"><i class="fas fa-clipboard-list me-2"></i>近期盘点</h4>
-            <div class="timeline">
-              <div class="timeline-item">
-                <div class="timeline-icon bg-success">
-                  <i class="fas fa-check"></i>
-                </div>
-                <div class="timeline-content">
-                  <span class="small text-secondary">2023-09-05</span>
-                  <p class="mb-0">上海主仓月度盘点完成</p>
-                </div>
+              <h4 class="mb-4"><i class="fas fa-clipboard-list me-2"></i>近期盘点</h4>
+              <div class="timeline">
+                  <div class="timeline-item">
+                      <div class="timeline-icon bg-success">
+                          <i class="fas fa-check"></i>
+                      </div>
+                      <div class="timeline-content">
+                          <span class="small text-secondary">2023-09-05</span>
+                          <p class="mb-0">上海主仓月度盘点完成</p>
+                      </div>
+                  </div>
+                  <div class="timeline-item">
+                      <div class="timeline-icon bg-warning">
+                          <i class="fas fa-exclamation"></i>
+                      </div>
+                      <div class="timeline-content">
+                          <span class="small text-secondary">2023-09-03</span>
+                          <p class="mb-0">北京分仓发现差异：-5件</p>
+                      </div>
+                  </div>
               </div>
-              <div class="timeline-item">
-                <div class="timeline-icon bg-warning">
-                  <i class="fas fa-exclamation"></i>
-                </div>
-                <div class="timeline-content">
-                  <span class="small text-secondary">2023-09-03</span>
-                  <p class="mb-0">北京分仓发现差异：-5件</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -689,18 +675,18 @@
 // 表单提交处理
 document.getElementById('productForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     // 收集表单数据
     const product = {
         name: document.getElementById('productName').value,
         category: document.getElementById('productCategory').value,
         attributes: {}
     };
-    
+
     // 收集属性数据
     const attributeNames = document.querySelectorAll('.attribute-name');
     const attributeValues = document.querySelectorAll('.attribute-value');
-    
+
     attributeNames.forEach((nameInput, index) => {
         const name = nameInput.value.trim();
         const value = attributeValues[index].value.trim();
@@ -708,7 +694,7 @@ document.getElementById('productForm').addEventListener('submit', async function
             product.attributes[name] = value;
         }
     });
-    
+
     try {
         // 发送到后端
         const response = await fetch('/api/products', {
@@ -718,9 +704,9 @@ document.getElementById('productForm').addEventListener('submit', async function
             },
             body: JSON.stringify(product)
         });
-        
+
         const result = await response.json();
-        
+
         if (response.ok) {
             alert('商品保存成功！');
             // 重置表单
@@ -742,28 +728,12 @@ document.getElementById('productForm').addEventListener('submit', async function
     }
 });
 
-// 修改addAttribute函数以使用新的类名
-function addAttribute() {
-    const container = document.getElementById('attributesContainer');
-    const newField = document.createElement('div');
-    newField.className = 'col-md-4';
-    newField.innerHTML = `
-        <div class="border p-3 rounded">
-            <input type="text" class="form-control mb-2 attribute-name" placeholder="属性名称">
-            <input type="text" class="form-control attribute-value" placeholder="属性值">
-            <button class="btn btn-link text-danger btn-sm mt-2 p-0"
-                    onclick="this.parentElement.parentElement.remove()">
-                <i class="fas fa-times"></i> 删除
-            </button>
-        </div>
-    `;
-    container.appendChild(newField);
-}
+
 
 // 供应商表单提交处理
 document.getElementById('supplierForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const supplierData = {
         id: document.getElementById('supplierId').value || null,
         name: document.getElementById('supplierName').value,
@@ -771,7 +741,7 @@ document.getElementById('supplierForm').addEventListener('submit', async functio
         cooperation_status: document.getElementById('supplierStatus').value,
         latest_evaluation: document.getElementById('supplierEvaluation').value
     };
-    
+
     try {
         // 发送到后端
         const response = await fetch('/api/suppliers', {
@@ -781,9 +751,9 @@ document.getElementById('supplierForm').addEventListener('submit', async functio
             },
             body: JSON.stringify(supplierData)
         });
-        
+
         const result = await response.json();
-        
+
         if (response.ok) {
             alert('供应商信息更新成功！');
             loadSuppliers(); // 重新加载供应商列表
@@ -801,10 +771,10 @@ async function loadSuppliers() {
     try {
         const response = await fetch('/api/suppliers');
         const suppliers = await response.json();
-        
+
         // 这里可以添加代码来更新供应商列表的显示
         console.log('供应商列表:', suppliers);
-        
+
         // 如果有供应商数据，可以预填充第一个供应商到表单
         if (suppliers.length > 0) {
             const firstSupplier = suppliers[0];
@@ -825,6 +795,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.location.hash === '#supplier') {
         loadSuppliers();
     }
+    loadProductListForTransfer();
 });
 
   // 示例图表
@@ -877,6 +848,99 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+// === 商品调拨功能 ===
+document.getElementById('transferForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+    const goodsId = parseInt(document.getElementById('transferGoodsSelect').value);
+  const fromWarehouse = document.getElementById('fromWarehouse').value;
+  const toWarehouse = document.getElementById('toWarehouse').value;
+  const quantity = parseInt(document.getElementById('transferQuantity').value);
+
+  const payload = { goodsId, fromWarehouse, toWarehouse, quantity };
+
+  try {
+    const res = await fetch('/api/inventory/transfer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (res.ok) {
+      alert('调拨成功！');
+    } else {
+      alert('调拨失败：' + result.error);
+    }
+  } catch (err) {
+    console.error('调拨出错：', err);
+    alert('系统错误');
+  }
+});
+
+/// === 加载商品列表填充调拨下拉 ===
+async function loadProductListForTransfer() {
+    try {
+        const res = await fetch('/api/productsForTransfer');
+        if (!res.ok) throw new Error('网络响应不正常');
+
+        const data = await res.json();
+        const select = document.getElementById('transferGoodsSelect');
+
+        // 清空现有选项
+        select.innerHTML = '';
+
+        // 添加默认选项
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '选择商品';
+        select.appendChild(defaultOption);
+
+        // 添加商品选项
+        data.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product.id;
+            option.textContent = product.name;
+            select.appendChild(option);
+        });
+    } catch (err) {
+        console.error('加载商品列表失败:', err);
+        alert('加载商品列表失败，请检查控制台');
+    }
+}
+
+// === 库存查询功能 ===
+document.getElementById('inventorySearchButton').addEventListener('click', async () => {
+    const query = document.getElementById('inventorySearchInput').value;
+    console.log('搜索查询:', query); // 添加日志
+    try {
+        const res = await fetch('/api/inventory?search=' + encodeURIComponent(query));
+        const data = await res.json();
+        console.log('搜索结果:', data); // 添加日志
+        const tbody = document.getElementById('inventoryTableBody');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            const status = item.current < item.safety ?
+                '<span class="status-badge bg-danger text-white"><i class="fas fa-exclamation-triangle me-2"></i>库存不足</span>' :
+                '<span class="status-badge bg-success text-white"><i class="fas fa-check-circle me-2"></i>正常</span>';
+            tbody.innerHTML += `
+        <tr>
+          <td>${item.name}</td>
+          <td>${item.warehouse}</td>
+          <td class="fw-bold">${item.current}</td>
+          <td>${item.safety}</td>
+          <td>${status}</td>
+        </tr>
+      `;
+        });
+    } catch (err) {
+        console.error('库存查询失败:', err);
+    }
+});
+
+
+// === 页面加载时初始化 ===
+window.addEventListener('DOMContentLoaded', () => {
+  loadProductListForTransfer();
+});
 </script>
 </body>
 </html>
