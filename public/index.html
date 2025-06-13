@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能采购管理系统</title>
+
+  <!-- 关键CSS内联加载避免阻塞渲染 -->
+  <style>
+    /* 核心样式 */
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --success-color: #06d6a0;
+      --warning-color: #ffd166;
+      --danger-color: #ef476f;
+      --light-bg: #f8f9fa;
+    }
+
+    body {
+      background: var(--light-bg);
+      font-family: 'Segoe UI', system-ui;
+      opacity: 0; /* 初始隐藏内容 */
+      transition: opacity 0.5s ease;
+    }
+
+    .main-container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    /* 骨架屏样式 */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+
+    .skeleton-text {
+      height: 1em;
+      margin-bottom: 0.5em;
+    }
+
+    .skeleton-table-row td {
+      padding: 1rem !important;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* 其他样式 */
+    .nav-pills {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-link {
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      color: #64748b;
+    }
+
+    .nav-link.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white !important;
+    }
+
+    .card-module {
+      background: white;
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .card-module:hover {
+      transform: translateY(-5px);
+    }
+
+    .form-control {
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+    }
+
+    .table-module {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+    .timeline-item {
+      position: relative;
+      padding-bottom: 20px;
+    }
+    .timeline-icon {
+      position: absolute;
+      left: -38px;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .timeline-content {
+      border-left: 2px solid #eee;
+      padding-left: 20px;
+      padding-bottom: 15px;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .star-rating {
+      font-size: 0.9em;
+    }
+
+    /* 状态筛选按钮激活样式 */
+    .btn[data-status].active {
+      background: var(--primary-color);
+      color: white !important;
+    }
+
+    /* 模态框动画 */
+    .modal {
+      animation: modalSlide 0.3s ease;
+    }
+
+    @keyframes modalSlide {
+      from { transform: translateY(20%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* 操作按钮过渡效果 */
+    .btn {
+      transition: all 0.2s ease;
+    }
+
+    .btn-success:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .page-item {
+      margin: 0 5px;
+    }
+
+    .page-link {
+      border-radius: 8px;
+      padding: 5px 15px;
+    }
+
+    .loader {
+      text-align: center;
+      padding: 20px;
+      color: var(--primary-color);
+    }
+
+    /* 新增样式 */
+    .attribute-item {
+      position: relative;
+      padding-right: 40px;
+    }
+
+    .remove-attribute {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--danger-color);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border-radius: 16px 16px 0 0 !important;
+    }
+
+    .modal-content {
+      border-radius: 16px !important;
+      border: none;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1050;
+      min-width: 250px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .goods-list-container {
+      margin-top: 2rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .highlight {
+      background-color: rgba(67, 97, 238, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    .search-highlight {
+      background-color: #ffd166;
+    }
+  </style>
+
+  <!-- 非关键CSS异步加载 -->
+  <link rel="preload" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  </noscript>
+</head>
+
+<body>
+<!-- 骨架屏 - 初始显示 -->
+<div id="skeleton" style="min-height: 100vh; padding: 20px;">
+  <div class="main-container">
+    <div class="d-flex align-items-center mb-5">
+      <div class="skeleton" style="width: 300px; height: 50px;"></div>
+    </div>
+
+    <!-- 导航骨架 -->
+    <div class="d-flex mb-4">
+      <div class="skeleton" style="width: 100px; height: 40px; margin-right: 10px;"></div>
+      <div class="skeleton" style="width: 100px; height: 40px; margin-right: 10px;"></div>
+      <div class="skeleton" style="width: 100px; height: 40px; margin-right: 10px;"></div>
+      <div class="skeleton" style="width: 100px; height: 40px;"></div>
+    </div>
+
+    <!-- 内容区域骨架 -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="skeleton" style="height: 400px; border-radius: 16px;"></div>
+      </div>
+      <div class="col-md-4">
+        <div class="skeleton" style="height: 200px; border-radius: 16px; margin-bottom: 20px;"></div>
+        <div class="skeleton" style="height: 200px; border-radius: 16px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 实际内容 - 初始隐藏 -->
+<div id="app" style="display: none;">
+  <!-- 提示消息容器 -->
+  <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+  <!-- 订单详情模态框 -->
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="orderModalTitle">采购订单详情</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-secondary">订单编号</label>
+              <input type="text" class="form-control" id="modalOrderId" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-secondary">供应商</label>
+              <input type="text" class="form-control" id="modalSupplier" readonly>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-secondary">订单金额</label>
+              <input type="text" class="form-control" id="modalAmount" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-secondary">订单状态</label>
+              <select class="form-select" id="modalStatus">
+                <option value="pending">待审批</option>
+                <option value="approved">已通过</option>
+                <option value="rejected">已拒绝</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-secondary">订单商品</label>
+            <table class="table table-sm">
+              <thead>
+              <tr>
+                <th>商品名称</th>
+                <th>数量</th>
+                <th>单价</th>
+                <th>总价</th>
+              </tr>
+              </thead>
+              <tbody id="orderItems">
+              <!-- 动态填充 -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-secondary">备注</label>
+            <textarea class="form-control" id="modalNotes" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+          <button type="button" class="btn btn-gradient" id="saveOrderBtn">保存更改</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <div class="d-flex align-items-center mb-5">
+      <h1 class="me-4" style="color: var(--primary-color);">
+        <i class="fas fa-boxes me-2"></i>采购管理系统
+      </h1>
+    </div>
+
+    <!-- 导航菜单 -->
+    <ul class="nav nav-pills mb-4">
+      <li class="nav-item me-2">
+        <a class="nav-link active" data-bs-toggle="tab" href="#goods">
+          <i class="fas fa-cube me-2"></i>商品管理
+        </a>
+      </li>
+      <li class="nav-item me-2">
+        <a class="nav-link" data-bs-toggle="tab" href="#purchase">
+          <i class="fas fa-shopping-cart me-2"></i>采购管理
+        </a>
+      </li>
+      <li class="nav-item me-2">
+        <a class="nav-link" data-bs-toggle="tab" href="#inventory">
+          <i class="fas fa-warehouse me-2"></i>库存管理
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#supplier">
+          <i class="fas fa-handshake me-2"></i>供应商
+        </a>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- 商品管理 -->
+      <div class="tab-pane fade show active" id="goods">
+        <div class="card-module p-4 mb-4">
+          <h4 class="mb-4"><i class="fas fa-plus-circle me-2"></i>新建商品</h4>
+          <form id="goodsForm" class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label text-secondary">商品名称</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                <input type="text" id="goodsName" class="form-control" placeholder="输入商品名称" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-secondary">商品分类</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
+                <select id="goodsCategory" class="form-select" required>
+                  <option value="">选择分类</option>
+                  <option value="electronics">电子产品</option>
+                  <option value="office">办公用品</option>
+                  <option value="tools">工具设备</option>
+                  <option value="materials">原材料</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <label class="form-label text-secondary">商品属性</label>
+                <button type="button" class="btn btn-sm btn-gradient" id="addAttributeBtn">
+                  <i class="fas fa-plus me-2"></i>添加属性
+                </button>
+              </div>
+              <div id="attributesContainer" class="row g-3">
+                <!-- 属性项会动态添加 -->
+              </div>
+            </div>
+            <div class="col-12 text-end">
+              <button type="submit" class="btn btn-gradient px-5">
+                <i class="fas fa-save me-2"></i>保存商品
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 商品列表 -->
+        <div class="card-module p-4">
+          <h4 class="mb-4"><i class="fas fa-list me-2"></i>商品列表</h4>
+          <div class="table-responsive">
+            <table class="table table-module table-hover align-middle">
+              <thead class="bg-light">
+              <tr>
+                <th>商品名称</th>
+                <th>分类</th>
+                <th>属性</th>
+                <th>操作</th>
+              </tr>
+              </thead>
+              <tbody id="goodsList">
+              <!-- 商品列表会动态填充 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 采购管理 -->
+      <div class="tab-pane fade" id="purchase">
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="card-module p-4">
+              <h4 class="mb-4"><i class="fas fa-file-invoice me-2"></i>采购订单</h4>
+
+              <!-- 骨架屏 -->
+              <div id="purchaseSkeleton">
+                <div class="d-flex justify-content-between mb-4">
+                  <div class="skeleton skeleton-text" style="width: 150px; height: 40px;"></div>
+                  <div class="skeleton" style="width: 100px; height: 40px;"></div>
+                </div>
+
+                <table class="table table-module">
+                  <thead>
+                  <tr>
+                    <th><div class="skeleton skeleton-text"></div></th>
+                    <th><div class="skeleton skeleton-text"></div></th>
+                    <th><div class="skeleton skeleton-text"></div></th>
+                    <th><div class="skeleton skeleton-text"></div></th>
+                    <th><div class="skeleton skeleton-text"></div></th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr class="skeleton-table-row">
+                    <td><div class="skeleton skeleton-text"></div></td>
+                    <td><div class="skeleton skeleton-text"></div></td>
+                    <td><div class="skeleton skeleton-text"></div></td>
+                    <td><div class="skeleton skeleton-text"></div></td>
+                    <td><div class="skeleton skeleton-text"></div></td>
+                  </tr>
+                  <tr class="skeleton-table-row">
+                    <td><div class="skeleton skeleton-text"></div></td>
+                    <td><div class="skeleton skeleton-text"></div></td>
+                    <td><div class="skeleton skeleton-text"></div></td>
+                    <td><div class="skeleton skeleton-text"></div></td>
+                    <td><div class="skeleton skeleton-text"></div></td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div id="purchaseContent" class="d-none">
+                <!-- 订单状态筛选 -->
+                <div class="d-flex mb-4">
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary active" data-status="all">
+                      全部订单
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-status="pending">
+                      待审批
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-status="approved">
+                      已通过
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-status="rejected">
+                      已拒绝
+                    </button>
+                  </div>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="table table-module table-hover align-middle">
+                    <thead class="bg-light">
+                    <tr>
+                      <th>订单编号</th>
+                      <th>供应商</th>
+                      <th>金额</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="purchaseTableBody">
+                    <!-- 动态加载 -->
+                    </tbody>
+                  </table>
+
+                  <!-- 分页控件 -->
+                  <div id="purchasePagination" class="pagination"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card-module p-4">
+              <h4 class="mb-4"><i class="fas fa-chart-line me-2"></i>采购统计</h4>
+              <div class="d-flex justify-content-between mb-3">
+                <div class="text-center">
+                  <div class="text-secondary small">本月采购</div>
+                  <div class="h4 text-primary">¥23,500</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-secondary small">供应商数量</div>
+                  <div class="h4 text-success">15</div>
+                </div>
+              </div>
+              <canvas id="purchaseChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 库存管理 -->
+      <div class="tab-pane fade" id="inventory">
+        <div class="row g-4">
+          <!-- 库存查询 -->
+          <div class="col-lg-8">
+            <div class="card-module p-4">
+              <h4 class="mb-4"><i class="fas fa-search me-2"></i>库存查询</h4>
+              <div class="input-group mb-4">
+                <input type="text" id="inventorySearch" class="form-control" placeholder="输入商品名称/编码">
+                <button class="btn btn-gradient" id="searchInventoryBtn">
+                  <i class="fas fa-search me-2"></i>搜索
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-module table-hover">
+                  <thead class="bg-light">
+                  <tr>
+                    <th>商品名称</th>
+                    <th>仓库</th>
+                    <th>当前库存</th>
+                    <th>安全库存</th>
+                    <th>状态</th>
+                  </tr>
+                  </thead>
+                  <tbody id="inventoryTableBody">
+                  <!-- 库存数据会动态填充 -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 库存操作 -->
+          <div class="col-lg-4">
+            <div class="card-module p-4 mb-4">
+              <h4 class="mb-4"><i class="fas fa-exchange-alt me-2"></i>库存调拨</h4>
+              <form id="transferForm">
+                <div class="mb-3">
+                  <label class="form-label text-secondary">选择商品</label>
+                  <select class="form-select" id="transferGoods" required>
+                    <option value="">请选择商品</option>
+                    <!-- 动态填充 -->
+                  </select>
+                </div>
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <label class="form-label text-secondary">来源仓库</label>
+                    <select class="form-select" id="fromWarehouse" required>
+                      <option value="">请选择</option>
+                      <option value="shanghai">上海主仓</option>
+                      <option value="beijing">北京分仓</option>
+                      <option value="guangzhou">广州分仓</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-secondary">目标仓库</label>
+                    <select class="form-select" id="toWarehouse" required>
+                      <option value="">请选择</option>
+                      <option value="shanghai">上海主仓</option>
+                      <option value="beijing">北京分仓</option>
+                      <option value="guangzhou">广州分仓</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="form-label text-secondary">调拨数量</label>
+                  <input type="number" class="form-control" id="transferQuantity" min="1" value="10" required>
+                </div>
+                <button type="submit" class="btn btn-gradient w-100">
+                  <i class="fas fa-truck-moving me-2"></i>提交调拨
+                </button>
+              </form>
+            </div>
+
+            <div class="card-module p-4">
+              <h4 class="mb-4"><i class="fas fa-clipboard-list me-2"></i>近期盘点</h4>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-icon bg-success">
+                    <i class="fas fa-check"></i>
+                  </div>
+                  <div class="timeline-content">
+                    <span class="small text-secondary">2023-09-05</span>
+                    <p class="mb-0">上海主仓月度盘点完成</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-icon bg-warning">
+                    <i class="fas fa-exclamation"></i>
+                  </div>
+                  <div class="timeline-content">
+                    <span class="small text-secondary">2023-09-03</span>
+                    <p class="mb-0">北京分仓发现差异：-5件</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 供应商管理 -->
+      <div class="tab-pane fade" id="supplier">
+        <div class="row g-4">
+          <!-- 供应商列表 -->
+          <div class="col-lg-8">
+            <div class="card-module p-4">
+              <h4 class="mb-4"><i class="fas fa-handshake me-2"></i>供应商列表</h4>
+              <div class="table-responsive">
+                <table class="table table-module table-hover">
+                  <thead class="bg-light">
+                  <tr>
+                    <th>供应商名称</th>
+                    <th>合作状态</th>
+                    <th>信用评级</th>
+                    <th>最近交易</th>
+                    <th>操作</th>
+                  </tr>
+                  </thead>
+                  <tbody id="supplierTableBody">
+                  <!-- 供应商数据会动态填充 -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 供应商详情 -->
+          <div class="col-lg-4">
+            <div class="card-module p-4">
+              <h4 class="mb-4"><i class="fas fa-info-circle me-2"></i>供应商详情</h4>
+              <form id="supplierForm">
+                <div class="mb-3">
+                  <label class="form-label text-secondary">供应商名称</label>
+                  <select class="form-select" id="supplierSelect" required>
+                    <option value="">请选择供应商</option>
+                    <!-- 动态填充 -->
+                  </select>
+                </div>
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <label class="form-label text-secondary">信用等级</label>
+                    <select class="form-select" id="supplierCredit" required>
+                      <option value="">请选择</option>
+                      <option value="AAA">AAA</option>
+                      <option value="AA">AA</option>
+                      <option value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-secondary">合作状态</label>
+                    <select class="form-select" id="supplierStatus" required>
+                      <option value="">请选择</option>
+                      <option value="active">合作中</option>
+                      <option value="paused">已暂停</option>
+                      <option value="terminated">终止合作</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <label class="form-label text-secondary">最近评价</label>
+                  <textarea class="form-control" id="supplierReview" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-gradient w-100">
+                  <i class="fas fa-save me-2"></i>更新信息
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 资源加载优化函数
+  function loadScript(src, callback) {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = callback;
+    document.body.appendChild(script);
+  }
+
+  // 关键渲染路径优化
+  window.addEventListener('DOMContentLoaded', function() {
+    // 加载核心JS资源
+    loadScript('https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js', function() {
+      loadScript('https://cdn.bootcdn.net/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js', function() {
+        // 所有核心资源加载完成后初始化应用
+        initApp();
+      });
+    });
+  });
+
+  // 应用初始化
+  function initApp() {
+    // 隐藏骨架屏，显示实际内容
+    document.getElementById('skeleton').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.body.style.opacity = 1;
+    initProcurementSystem();
+  }
+
+  // API请求封装
+  async function fetchData(url, options = {}) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+      showToast(`请求失败: ${error.message}`, 'danger');
+      throw error;
+    }
+  }
+
+  // 采购系统初始化
+  function initProcurementSystem() {
+    // 初始化商品管理
+    initGoodsManagement();
+    // 初始化采购管理
+    initPurchaseManagement();
+    // 初始化库存管理
+    initInventoryManagement();
+    // 初始化供应商管理
+    initSupplierManagement();
+
+    // 模拟加载延迟
+    setTimeout(function() {
+      document.getElementById('purchaseSkeleton').style.display = 'none';
+      document.getElementById('purchaseContent').classList.remove('d-none');
+      loadPurchaseOrders('all');
+    }, 800);
+  }
+
+  // 商品管理初始化
+  function initGoodsManagement() {
+    document.getElementById('addAttributeBtn').addEventListener('click', addAttribute);
+    document.getElementById('goodsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      saveGoods();
+    });
+    loadGoodsList();
+    addAttribute();
+  }
+
+  // 加载商品列表
+  async function loadGoodsList() {
+    try {
+      const goods = await fetchData('/api/goods');
+      const goodsList = document.getElementById('goodsList');
+      goodsList.innerHTML = '';
+
+      if (goods.length === 0) {
+        goodsList.innerHTML = '<tr><td colspan="4" class="text-center py-4">暂无商品数据</td></tr>';
+        return;
+      }
+
+      goods.forEach(good => {
+        const attributesHtml = good.attributes.map(attr =>
+          `<span class="badge bg-light text-dark me-1">${attr.name}: ${attr.value}</span>`
+        ).join('');
+
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', good.id);
+        row.innerHTML = `
+          <td>${good.name}</td>
+          <td>${document.querySelector(`#goodsCategory option[value="${good.category}"]`).textContent}</td>
+          <td>${attributesHtml}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-danger delete-goods">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        goodsList.appendChild(row);
+      });
+
+      document.querySelectorAll('.delete-goods').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const row = this.closest('tr');
+          const goodsId = row.getAttribute('data-id');
+          deleteGoods(goodsId);
+        });
+      });
+    } catch (error) {
+      console.error('加载商品列表失败:', error);
+    }
+  }
+
+  // 保存商品
+  async function saveGoods() {
+    const name = document.getElementById('goodsName').value;
+    const category = document.getElementById('goodsCategory').value;
+    const attributes = [];
+
+    document.querySelectorAll('#attributesContainer .attribute-item').forEach(item => {
+      const nameInput = item.querySelector('input:first-child');
+      const valueInput = item.querySelector('input:last-child');
+      if (nameInput.value && valueInput.value) {
+        attributes.push({
+          name: nameInput.value,
+          value: valueInput.value
+        });
+      }
+    });
+
+    if (!name || !category || attributes.length === 0) {
+      showToast('请填写完整的商品信息', 'warning');
+      return;
+    }
+
+    try {
+      const newGood = await fetchData('/api/goods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, category, attributes })
+      });
+
+      showToast(`商品 "${name}" 保存成功`, 'success');
+      document.getElementById('goodsForm').reset();
+      document.getElementById('attributesContainer').innerHTML = '';
+      addAttribute();
+      loadGoodsList();
+
+      setTimeout(() => {
+        const newRow = document.querySelector(`#goodsList tr[data-id="${newGood.id}"]`);
+        if (newRow) {
+          newRow.classList.add('highlight');
+          setTimeout(() => newRow.classList.remove('highlight'), 3000);
+        }
+      }, 500);
+    } catch (error) {
+      console.error('保存商品失败:', error);
+    }
+  }
+
+  // 删除商品
+  async function deleteGoods(goodsId) {
+    try {
+      await fetchData(`/api/goods/${goodsId}`, { method: 'DELETE' });
+      showToast('商品已删除', 'success');
+      loadGoodsList();
+    } catch (error) {
+      console.error('删除商品失败:', error);
+    }
+  }
+
+  // 采购管理初始化
+  function initPurchaseManagement() {
+    document.querySelectorAll('#purchaseContent .btn[data-status]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#purchaseContent .btn[data-status]').forEach(b => {
+          b.classList.remove('active');
+        });
+        this.classList.add('active');
+        const status = this.getAttribute('data-status');
+        loadPurchaseOrders(status);
+      });
+    });
+    document.getElementById('saveOrderBtn').addEventListener('click', saveOrderChanges);
+  }
+
+  // 加载采购订单
+  async function loadPurchaseOrders(status = 'all') {
+    try {
+      const orders = await fetchData(`/api/orders?status=${status}`);
+      const tbody = document.getElementById('purchaseTableBody');
+      tbody.innerHTML = '';
+
+      if (orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">暂无订单数据</td></tr>';
+        return;
+      }
+
+      orders.forEach(order => {
+        const statusBadge = getStatusBadge(order.status);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>#${order.id}</td>
+          <td>${order.supplier}</td>
+          <td class="fw-bold">¥${order.amount.toLocaleString()}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary edit-order" data-id="${order.id}">
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.querySelectorAll('.edit-order').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const orderId = this.getAttribute('data-id');
+          openOrderModal(orderId);
+        });
+      });
+    } catch (error) {
+      console.error('加载采购订单失败:', error);
+    }
+  }
+
+  // 获取状态徽章
+  function getStatusBadge(status) {
+    switch(status) {
+      case 'pending':
+        return '<span class="status-badge bg-warning text-dark"><i class="fas fa-clock me-2"></i>待审批</span>';
+      case 'approved':
+        return '<span class="status-badge bg-success text-white"><i class="fas fa-check-circle me-2"></i>已通过</span>';
+      case 'rejected':
+        return '<span class="status-badge bg-danger text-white"><i class="fas fa-times-circle me-2"></i>已拒绝</span>';
+      default:
+        return '';
+    }
+  }
+
+  // 打开订单模态框
+  async function openOrderModal(orderId) {
+    try {
+      const order = await fetchData(`/api/orders/${orderId}`);
+
+      document.getElementById('modalOrderId').value = order.id;
+      document.getElementById('modalSupplier').value = order.supplier;
+      document.getElementById('modalAmount').value = '¥' + order.amount.toLocaleString();
+      document.getElementById('modalStatus').value = order.status;
+      document.getElementById('modalNotes').value = order.notes || '';
+
+      const itemsContainer = document.getElementById('orderItems');
+      itemsContainer.innerHTML = '';
+
+      order.items.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+          <td>¥${item.price.toLocaleString()}</td>
+          <td>¥${(item.quantity * item.price).toLocaleString()}</td>
+        `;
+        itemsContainer.appendChild(row);
+      });
+
+      document.getElementById('saveOrderBtn').setAttribute('data-id', orderId);
+      const orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+      orderModal.show();
+    } catch (error) {
+      console.error('打开订单模态框失败:', error);
+    }
+  }
+
+  // 保存订单更改
+  async function saveOrderChanges() {
+    const orderId = document.getElementById('saveOrderBtn').getAttribute('data-id');
+    const newStatus = document.getElementById('modalStatus').value;
+    const notes = document.getElementById('modalNotes').value;
+
+    try {
+      await fetchData(`/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, notes })
+      });
+
+      showToast('订单状态已更新', 'success');
+      const orderModal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+      orderModal.hide();
+
+      const currentStatus = document.querySelector('#purchaseContent .btn[data-status].active').getAttribute('data-status');
+      loadPurchaseOrders(currentStatus);
+    } catch (error) {
+      console.error('保存订单更改失败:', error);
+    }
+  }
+
+  // 库存管理初始化
+  function initInventoryManagement() {
+    document.getElementById('searchInventoryBtn').addEventListener('click', searchInventory);
+    document.getElementById('inventorySearch').addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') searchInventory();
+    });
+    document.getElementById('transferForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitTransfer();
+    });
+    loadInventory();
+    loadGoodsForTransfer();
+  }
+
+  // 加载库存数据
+  async function loadInventory() {
+    try {
+      const inventory = await fetchData('/api/inventory');
+      const tbody = document.getElementById('inventoryTableBody');
+      tbody.innerHTML = '';
+
+      if (inventory.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">暂无库存数据</td></tr>';
+        return;
+      }
+
+      inventory.forEach(item => {
+        const status = item.current < item.safety ?
+          '<span class="status-badge bg-danger text-white"><i class="fas fa-exclamation-triangle me-2"></i>库存不足</span>' :
+          '<span class="status-badge bg-success text-white"><i class="fas fa-check-circle me-2"></i>正常</span>';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.warehouse}</td>
+          <td class="fw-bold">${item.current}</td>
+          <td>${item.safety}</td>
+          <td>${status}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    } catch (error) {
+      console.error('加载库存数据失败:', error);
+    }
+  }
+
+  // 搜索库存
+  async function searchInventory() {
+    const keyword = document.getElementById('inventorySearch').value;
+    try {
+      const inventory = await fetchData(`/api/inventory?search=${keyword}`);
+      const tbody = document.getElementById('inventoryTableBody');
+      tbody.innerHTML = '';
+
+      if (inventory.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">未找到匹配的库存记录</td></tr>';
+        return;
+      }
+
+      inventory.forEach(item => {
+        const status = item.current < item.safety ?
+          '<span class="status-badge bg-danger text-white"><i class="fas fa-exclamation-triangle me-2"></i>库存不足</span>' :
+          '<span class="status-badge bg-success text-white"><i class="fas fa-check-circle me-2"></i>正常</span>';
+
+        const name = keyword ?
+          item.name.replace(new RegExp(keyword, 'gi'), match => `<span class="search-highlight">${match}</span>`) :
+          item.name;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${name}</td>
+          <td>${item.warehouse}</td>
+          <td class="fw-bold">${item.current}</td>
+          <td>${item.safety}</td>
+          <td>${status}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    } catch (error) {
+      console.error('搜索库存失败:', error);
+    }
+  }
+
+  // 加载商品选择框（调拨用）
+  async function loadGoodsForTransfer() {
+    try {
+      const goods = await fetchData('/api/goods');
+      const select = document.getElementById('transferGoods');
+
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      goods.forEach(good => {
+        const option = document.createElement('option');
+        option.value = good.id;
+        option.textContent = good.name;
+        select.appendChild(option);
+      });
+    } catch (error) {
+      console.error('加载商品选择框失败:', error);
+    }
+  }
+
+  // 提交调拨
+  async function submitTransfer() {
+    const goodsId = document.getElementById('transferGoods').value;
+    const fromWarehouse = document.getElementById('fromWarehouse').value;
+    const toWarehouse = document.getElementById('toWarehouse').value;
+    const quantity = parseInt(document.getElementById('transferQuantity').value);
+
+    if (!goodsId || !fromWarehouse || !toWarehouse || !quantity || quantity <= 0) {
+      showToast('请填写完整的调拨信息', 'warning');
+      return;
+    }
+
+    if (fromWarehouse === toWarehouse) {
+      showToast('来源仓库和目标仓库不能相同', 'warning');
+      return;
+    }
+
+    try {
+      await fetchData('/api/inventory/transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goodsId, fromWarehouse, toWarehouse, quantity })
+      });
+
+      showToast('库存调拨成功', 'success');
+      document.getElementById('transferForm').reset();
+      loadInventory();
+    } catch (error) {
+      console.error('提交调拨失败:', error);
+    }
+  }
+
+  // 供应商管理初始化
+  function initSupplierManagement() {
+    document.getElementById('supplierForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      updateSupplier();
+    });
+    document.getElementById('supplierSelect').addEventListener('change', function() {
+      loadSupplierDetails(this.value);
+    });
+    loadSuppliers();
+  }
+
+  // 加载供应商列表
+  async function loadSuppliers() {
+    try {
+      const suppliers = await fetchData('/api/suppliers');
+      const select = document.getElementById('supplierSelect');
+      const tbody = document.getElementById('supplierTableBody');
+
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+      tbody.innerHTML = '';
+
+      if (suppliers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">暂无供应商数据</td></tr>';
+        return;
+      }
+
+      suppliers.forEach(supplier => {
+        const option = document.createElement('option');
+        option.value = supplier.id;
+        option.textContent = supplier.name;
+        select.appendChild(option);
+
+        const status = getSupplierStatus(supplier.status);
+        const creditStars = getCreditStars(supplier.credit);
+
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', supplier.id);
+        row.innerHTML = `
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="avatar bg-primary text-white me-3">${supplier.name.charAt(0)}</div>
+              <div>
+                <div class="fw-bold">${supplier.name}</div>
+                <div class="small text-secondary">${supplier.contact}</div>
+              </div>
+            </div>
+          </td>
+          <td>${status}</td>
+          <td>
+            <div class="star-rating text-warning">
+              ${creditStars}
+            </div>
+          </td>
+          <td>
+            <div class="small">${supplier.lastTransaction.date}</div>
+            <div class="small text-success">¥${supplier.lastTransaction.amount.toLocaleString()}</div>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary select-supplier" data-id="${supplier.id}">
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.querySelectorAll('.select-supplier').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const supplierId = this.getAttribute('data-id');
+          document.getElementById('supplierSelect').value = supplierId;
+          loadSupplierDetails(supplierId);
+        });
+      });
+
+      if (suppliers.length > 0) {
+        loadSupplierDetails(suppliers[0].id);
+      }
+    } catch (error) {
+      console.error('加载供应商列表失败:', error);
+    }
+  }
+
+  // 获取供应商状态
+  function getSupplierStatus(status) {
+    switch(status) {
+      case 'active':
+        return '<span class="status-badge bg-success text-white"><i class="fas fa-check-circle me-2"></i>合作中</span>';
+      case 'paused':
+        return '<span class="status-badge bg-warning text-dark"><i class="fas fa-pause-circle me-2"></i>已暂停</span>';
+      case 'terminated':
+        return '<span class="status-badge bg-danger text-white"><i class="fas fa-ban me-2"></i>终止合作</span>';
+      default:
+        return '';
+    }
+  }
+
+  // 获取信用评级星星
+  function getCreditStars(credit) {
+    const stars = {
+      'AAA': '<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>',
+      'AA': '<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>',
+      'A': '<i class="fas fa-star"></i><i class="fas fa-star"></i>',
+      'B': '<i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>',
+      'C': '<i class="fas fa-star"></i>'
+    };
+    return stars[credit] || credit;
+  }
+
+  // 加载供应商详情
+  async function loadSupplierDetails(supplierId) {
+    try {
+      const suppliers = await fetchData('/api/suppliers');
+      const supplier = suppliers.find(s => s.id == supplierId);
+      if (!supplier) return;
+
+      document.getElementById('supplierCredit').value = supplier.credit;
+      document.getElementById('supplierStatus').value = supplier.status;
+      document.getElementById('supplierReview').value = supplier.review;
+    } catch (error) {
+      console.error('加载供应商详情失败:', error);
+    }
+  }
+
+  // 更新供应商信息
+  async function updateSupplier() {
+    const supplierId = document.getElementById('supplierSelect').value;
+    const credit = document.getElementById('supplierCredit').value;
+    const status = document.getElementById('supplierStatus').value;
+    const review = document.getElementById('supplierReview').value;
+
+    if (!supplierId || !credit || !status || !review) {
+      showToast('请填写完整的供应商信息', 'warning');
+      return;
+    }
+
+    try {
+      await fetchData(`/api/suppliers/${supplierId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credit, status, review })
+      });
+
+      showToast('供应商信息已更新', 'success');
+      loadSuppliers();
+    } catch (error) {
+      console.error('更新供应商信息失败:', error);
+    }
+  }
+
+  // 显示提示消息
+  function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toastId = `toast-${Date.now()}`;
+
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    toast.id = toastId;
+
+    toast.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">${message}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    `;
+
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+</script>
+</body>
+</html>

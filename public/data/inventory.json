@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "笔记本电脑 X1",
+    "warehouse": "上海主仓",
+    "current": 150,
+    "safety": 200
+  },
+  {
+    "id": 1,
+    "name": "笔记本电脑 X1",
+    "warehouse": "北京分仓",
+    "current": 80,
+    "safety": 100
+  },
+  {
+    "id": 2,
+    "name": "无线鼠标 M2",
+    "warehouse": "上海主仓",
+    "current": 350,
+    "safety": 200
+  },
+  {
+    "id": 2,
+    "name": "无线鼠标 M2",
+    "warehouse": "北京分仓",
+    "current": 850,
+    "safety": 500
+  },
+  {
+    "id": 3,
+    "name": "A4打印纸",
+    "warehouse": "上海主仓",
+    "current": 120,
+    "safety": 100
+  },
+  {
+    "id": 3,
+    "name": "A4打印纸",
+    "warehouse": "广州分仓",
+    "current": 200,
+    "safety": 150
+  }
+]

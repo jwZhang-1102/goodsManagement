@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "科技先锋有限公司",
+    "status": "active",
+    "credit": "AAA",
+    "review": "交货准时，质量稳定",
+    "contact": "王经理 138-1234-5678",
+    "lastTransaction": {
+      "date": "2023-09-01",
+      "amount": 15000
+    }
+  },
+  {
+    "id": 2,
+    "name": "办公用品供应商",
+    "status": "active",
+    "credit": "AA",
+    "review": "价格合理，服务周到",
+    "contact": "李经理 139-8765-4321",
+    "lastTransaction": {
+      "date": "2023-08-28",
+      "amount": 8500
+    }
+  },
+  {
+    "id": 3,
+    "name": "工具设备公司",
+    "status": "paused",
+    "credit": "A",
+    "review": "产品质量好，但发货较慢",
+    "contact": "张经理 137-1122-3344",
+    "lastTransaction": {
+      "date": "2023-08-20",
+      "amount": 22000
+    }
+  },
+  {
+    "id": 4,
+    "name": "原材料供应商",
+    "status": "active",
+    "credit": "B",
+    "review": "价格有优势，但偶尔有质量问题",
+    "contact": "刘经理 135-5566-7788",
+    "lastTransaction": {
+      "date": "2023-08-25",
+      "amount": 12500
+    }
+  }
+]

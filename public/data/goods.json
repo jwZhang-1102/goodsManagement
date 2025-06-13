@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "笔记本电脑 X1",
+    "category": "electronics",
+    "attributes": [
+      {
+        "name": "品牌",
+        "value": "ThinkPad"
+      },
+      {
+        "name": "型号",
+        "value": "X1 Carbon"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "无线鼠标 M2",
+    "category": "electronics",
+    "attributes": [
+      {
+        "name": "品牌",
+        "value": "Logitech"
+      },
+      {
+        "name": "连接方式",
+        "value": "蓝牙"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "A4打印纸",
+    "category": "office",
+    "attributes": [
+      {
+        "name": "规格",
+        "value": "80g"
+      },
+      {
+        "name": "数量",
+        "value": "500张/包"
+      }
+    ]
+  }
+]

@@ -1,0 +1,87 @@
+[
+  {
+    "id": "PO-2309-001",
+    "supplier": "科技先锋有限公司",
+    "amount": 15000,
+    "status": "pending",
+    "notes": "",
+    "items": [
+      {
+        "name": "笔记本电脑 X1",
+        "quantity": 10,
+        "price": 1200
+      },
+      {
+        "name": "无线鼠标 M2",
+        "quantity": 20,
+        "price": 150
+      }
+    ]
+  },
+  {
+    "id": "PO-2309-002",
+    "supplier": "办公用品供应商",
+    "amount": 8500,
+    "status": "approved",
+    "notes": "",
+    "items": [
+      {
+        "name": "A4打印纸",
+        "quantity": 100,
+        "price": 25
+      },
+      {
+        "name": "文件夹",
+        "quantity": 200,
+        "price": 3
+      }
+    ]
+  },
+  {
+    "id": "PO-2309-003",
+    "supplier": "工具设备公司",
+    "amount": 22000,
+    "status": "pending",
+    "notes": "",
+    "items": [
+      {
+        "name": "电动工具套装",
+        "quantity": 5,
+        "price": 3500
+      },
+      {
+        "name": "工具箱",
+        "quantity": 10,
+        "price": 450
+      }
+    ]
+  },
+  {
+    "id": "PO-2309-004",
+    "supplier": "原材料供应商",
+    "amount": 12500,
+    "status": "approved",
+    "notes": "",
+    "items": [
+      {
+        "name": "钢材",
+        "quantity": 500,
+        "price": 25
+      }
+    ]
+  },
+  {
+    "id": "PO-2309-005",
+    "supplier": "科技先锋有限公司",
+    "amount": 18000,
+    "status": "rejected",
+    "notes": "",
+    "items": [
+      {
+        "name": "显示器",
+        "quantity": 15,
+        "price": 1200
+      }
+    ]
+  }
+]
